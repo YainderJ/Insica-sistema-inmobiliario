@@ -2,13 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models.usuario import Usuario, Instructor
-from app.models.reserva import Reserva
-from app.models.pago import Pago
-from app.models.clase import Clase
-from app.models.shala import Shala
+from app.models.usuario import Usuario
+from app.models.agente import Agente
 from app.common.decoradores import role_required
-from app.models.notificacion import Notificacion
 from app.factories.usuario_factory import UsuarioFactory
 
 auth_bp = Blueprint("auth", __name__)
@@ -79,19 +75,19 @@ def iniciar_sesion():
     return render_template("auth/iniciar_sesion.html")
 
 
-@auth_bp.route("/panel")
+# ... (Mantén todas las importaciones y las rutas de login/registro completamente intactas) ...
+
+@auth_bp.route('/panel')
 @login_required
 def panel():
-    notificaciones_no_leidas = 0
-    if current_user.rol == "YOGUI":
-        notificaciones_no_leidas = Notificacion.query.filter_by(
-            yogui_id=current_user.id, leida=False
-        ).count()
-    return render_template(
-        "dashboard/panel.html",
-        usuario=current_user,
-        notificaciones_no_leidas=notificaciones_no_leidas,
-    )
+    """
+    Ruta del Dashboard principal post-login.
+    Se preserva la lógica de sesión pero se elimina la consulta a Notificacion (Almacén obsoleto).
+    """
+    # Renderizamos directamente la vista inyectando el usuario actual
+    return render_template('dashboard/panel.html', usuario=current_user)
+
+# ... (Mantén cualquier otra ruta de cierre de sesión o perfil intacta abajo) ...
 
 
 @auth_bp.route("/administracion")

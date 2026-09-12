@@ -1,21 +1,18 @@
-from .asistencia import Asistencia as Asistencia
-from .clase import Clase as Clase
-from .notificacion import Notificacion as Notificacion
-from .pago import Pago as Pago
-from .paquete import Paquete as Paquete
-from .reserva import Reserva as Reserva
-from .shala import Shala as Shala
-from .usuario import Instructor as Instructor
+# Mantenemos el usuario base intacto para la autenticación
 from .usuario import Usuario as Usuario
+
+# Modelos del sistema inmobiliario INSICA
+from .agente import Agente as Agente
+from .inmueble import Inmueble as Inmueble
+from .lead_crm import LeadCRM as LeadCRM
+from .cita import Cita as Cita
+from .venta import Venta as Venta
 
 __all__ = [
     "Usuario",
-    "Instructor",
-    "Shala",
-    "Clase",
-    "Paquete",
-    "Reserva",
-    "Pago",
-    "Asistencia",
-    "Notificacion",
+    "Agente",
+    "Inmueble",
+    "LeadCRM",
+    "Cita",
+    "Venta"
 ]

@@ -2,11 +2,13 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 
-
 class Usuario(UserMixin, db.Model):
-
     __tablename__ = "usuario"
 
+    # ==========================================
+    # NÚCLEO DE AUTENTICACIÓN (INTOCABLE)
+    # Mapeo: 'YOGUI' -> Cliente | 'INSTRUCTOR' -> Agente Inmobiliario
+    # ==========================================
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
@@ -16,24 +18,18 @@ class Usuario(UserMixin, db.Model):
         db.Enum("ADMIN", "ADMIN_SHALA", "INSTRUCTOR", "YOGUI"), nullable=False
     )
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Campo heredado del sistema base (se mantiene para no generar conflictos con auth.py)
     saldo_clases = db.Column(db.Integer, default=0)
-    shala_id = db.Column(db.Integer, db.ForeignKey("shala.id"), nullable=True)
 
-    instructor = db.relationship("Instructor", backref="usuario", uselist=False)
-    notificaciones = db.relationship(
-        "Notificacion", backref="yogui", lazy=True, cascade="all, delete-orphan"
-    )
+    # ==========================================
+    # NOTA ARQUITECTÓNICA - INSICA
+    # ==========================================
+    # Se omiten las declaraciones explícitas de db.relationship hacia los 
+    # nuevos almacenes (Inmuebles, Leads, Citas, Ventas) para prevenir 
+    # el 'InvalidRequestError' durante la inicialización de los Mappers.
+    # El flujo de datos se extrae directamente en la Capa de Control (Rutas) 
+    # usando filtros explícitos sobre las llaves foráneas.
 
     def __repr__(self):
-        return f"<Usuario {self.email}>"
-
-
-class Instructor(db.Model):
-    __tablename__ = "instructor"
-
-    id = db.Column(db.Integer, db.ForeignKey("usuario.id"), primary_key=True)
-    shala_id = db.Column(db.Integer, db.ForeignKey("shala.id"), nullable=False)
-    bio = db.Column(db.Text)
-    certificaciones = db.Column(db.Text)
-
-    shala = db.relationship("Shala", backref="instructores")
+        return f"<Usuario {self.email} - Rol: {self.rol}>"

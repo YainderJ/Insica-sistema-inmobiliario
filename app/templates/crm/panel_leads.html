@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Panel CRM - Leads - INSICA{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center mt-3">
+    <div class="col-md-8">
+        <h2 class="fw-bold text-primary"><i class="bi bi-people-fill"></i> Panel de Gestión CRM</h2>
+        <p class="text-muted">Administra las consultas y requerimientos de tus clientes potenciales.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente Prospecto</th>
+                        <th>Inmueble de Interés</th>
+                        <th>Estado</th>
+                        <th>Historial de Interacción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if leads %}
+                        {% for lead in leads %}
+                        <tr>
+                            <td>
+                                <!-- Formateo de la fecha de creación del lead -->
+                                <small class="text-muted">{{ lead.fecha_creacion.strftime('%d/%m/%Y') }}</small><br>
+                                <small class="text-muted">{{ lead.fecha_creacion.strftime('%H:%M') }}</small>
+                            </td>
+                            <td>
+                                <!-- Mapeo: Datos del antiguo Yogui, ahora Cliente -->
+                                <span class="fw-bold">{{ lead.cliente.nombre }}</span><br>
+                                <small class="text-muted">{{ lead.cliente.email }}</small>
+                            </td>
+                            <td>
+                                {% if lead.inmueble %}
+                                    <span class="fw-semibold">{{ lead.inmueble.tipo_operacion }}</span><br>
+                                    <small class="text-muted">{{ lead.inmueble.tipo_inmueble }} en {{ lead.inmueble.direccion }}</small>
+                                {% else %}
+                                    <span class="text-muted fst-italic">Consulta General a la Agencia</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Colores dinámicos según el estado del seguimiento -->
+                                {% set badge_color = 'primary' if lead.estado_lead == 'NUEVO' else ('warning' if lead.estado_lead == 'EN_PROCESO' else 'success') %}
+                                <span class="badge bg-{{ badge_color }} rounded-pill px-3 py-2">{{ lead.estado_lead }}</span>
+                            </td>
+                            <td>
+                                <!-- El historial se trunca para no desbordar la tabla visualmente -->
+                                <div class="text-truncate text-muted" style="max-width: 250px;" title="{{ lead.historial }}">
+                                    {{ lead.historial }}
+                                </div>
+                            </td>
+                            <td>
+                                <!-- Botón para el Proceso 2.3: Responder Consulta -->
+                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-chat-dots"></i> Responder
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                <h5>No tienes nuevos leads asignados en este momento.</h5>
+                                <p>Las consultas de los clientes aparecerán aquí automáticamente.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

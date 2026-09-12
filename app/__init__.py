@@ -38,34 +38,53 @@ def create_app():
     from app.routes.auth import auth_bp
 
     app.register_blueprint(auth_bp)
- 
-    from app.routes.clases import clases_bp
 
-    app.register_blueprint(clases_bp)
+    from app.routes.inmuebles import inmuebles_bp
+
+    app.register_blueprint(inmuebles_bp)
+
+ # 3. Registro del módulo de Gestión de Interacciones (CRM - Almacén D2)
+    from app.routes.crm import crm_bp
+
+    app.register_blueprint(crm_bp)
+
+# 4. Registro del módulo de Gestión de Citas (Almacén D3)
+    from app.routes.citas import citas_bp
+
+    app.register_blueprint(citas_bp)
+
+# 5. Registro del módulo de Gestión de Ventas (Almacén D4)
+    from app.routes.ventas import ventas_bp
+
+    app.register_blueprint(ventas_bp)
+
+    #from app.routes.clases import clases_bp
+
+    #app.register_blueprint(clases_bp)
     
-    from app.routes.reservas import reservas_bp
+    #from app.routes.reservas import reservas_bp
 
-    app.register_blueprint(reservas_bp)
+    #app.register_blueprint(reservas_bp)
 
-    from app.routes.asistencia import asistencia_bp
+    #from app.routes.asistencia import asistencia_bp
 
-    app.register_blueprint(asistencia_bp)
+    #app.register_blueprint(asistencia_bp)
 
-    from app.routes.paquetes import paquetes_bp
+    #from app.routes.paquetes import paquetes_bp
 
-    app.register_blueprint(paquetes_bp)
+    #app.register_blueprint(paquetes_bp)
     
-    from app.routes.pagos import pagos_bp
+    #from app.routes.pagos import pagos_bp
 
-    app.register_blueprint(pagos_bp)
+    #app.register_blueprint(pagos_bp)
 
     from app.routes.analisis import analisis_bp
 
     app.register_blueprint(analisis_bp)
 
-    from app.routes.shalas import shalas_bp
+    #from app.routes.shalas import shalas_bp
 
-    app.register_blueprint(shalas_bp)
+    #app.register_blueprint(shalas_bp)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.iniciar_sesion"
