@@ -28,12 +28,14 @@
                         <input type="password" name="password" class="form-control form-control-lg" placeholder="Crea una contraseña segura" required>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">¿Qué rol tendrás?</label>
-                        <select name="rol" class="form-select form-select-lg" required>
-                            <option value="">Selecciona una opción...</option>
-                            <option value="YOGUI"> Yogui (Alumno)</option>
-                            <option value="INSTRUCTOR"> Instructor</option>
+                    <div class="mb-3">
+    <label for="rol" class="form-label">¿Qué rol tendrás?</label>
+    <select class="form-select" id="rol" name="rol" required>
+        <option value="" selected disabled>Selecciona una opción...</option>
+        <option value="Cliente">Cliente</option>
+        <option value="Agente">Agente Inmobiliario</option>
+    </select>
+</div>
                             
                             {% if current_user.is_authenticated and current_user.rol == "ADMIN" %}
                                 <option value="ADMIN"> Admin </option>

@@ -8,17 +8,28 @@ from app.models.usuario import Usuario
 
 inmuebles_bp = Blueprint('inmuebles', __name__, url_prefix='/inmuebles')
 
-@inmuebles_bp.route('/catalogo', methods=['GET'])
-@login_required
+@inmuebles_bp.route('/catalogo')
 def catalogo():
-    propiedades = Inmueble.query.all()
-    return render_template('inmuebles/catalogo.html', propiedades=propiedades)
+    """
+    Proceso 1.3: Filtrar y Consultar.
+    Renderiza el catálogo aplicando reglas de visibilidad flexibles según el rol.
+    """
+    if current_user.is_authenticated and current_user.rol and ('agente' in current_user.rol.lower() or 'admin' in current_user.rol.lower()):
+        # Visibilidad Total para el equipo comercial
+        lista_resultados = Inmueble.query.order_by(Inmueble.id.desc()).all()
+    else:
+        # Visibilidad Restringida para Clientes (Solo Disponibles)
+        lista_resultados = Inmueble.query.filter_by(estatus='Disponible').order_by(Inmueble.id.desc()).all()
+    
+    # CORRECCIÓN CLAVE: Pasamos la variable como 'propiedades' para que coincida con tu HTML
+    return render_template('inmuebles/catalogo.html', propiedades=lista_resultados)
 
 @inmuebles_bp.route('/registrar', methods=['GET', 'POST'])
 @login_required
 def registrar_inmueble():
-    if current_user.rol != 'INSTRUCTOR':
-        flash('No tienes permisos para realizar esta acción.', 'error')
+    # Bloqueo de seguridad: Solo el Agente Inmobiliario (o Admin) puede captar inmuebles
+    if current_user.rol not in ['Agente', 'Admin']:
+        flash('No tienes permisos para realizar esta acción. Exclusivo para Agentes.', 'error')
         return redirect(url_for('auth.panel'))
 
     if request.method == 'POST':
@@ -42,6 +53,7 @@ def registrar_inmueble():
         # Unimos los nombres con comas (ej. "foto1.jpg,foto2.jpg")
         fotos_str = ','.join(nombres_fotos) if nombres_fotos else 'default.png'
 
+        # Inserción del nuevo registro en el Almacén D1
         nuevo_inmueble = Inmueble(
             tipo_operacion=tipo_operacion,
             tipo_inmueble=tipo_inmueble,
@@ -54,6 +66,8 @@ def registrar_inmueble():
 
         db.session.add(nuevo_inmueble)
         db.session.commit()
+        
+        # Mensaje de éxito devuelto al Agente Inmobiliario
         flash('Inmueble publicado con éxito.', 'success')
         return redirect(url_for('inmuebles.catalogo'))
 

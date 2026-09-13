@@ -1,0 +1,72 @@
+{% extends "base/base.html" %}
+
+{% block title %}Mis Visitas - INSICA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-calendar-check text-primary"></i> Mis Visitas Programadas</h2>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white pb-0">
+            <p class="text-muted">Aquí puedes consultar el estado de tus solicitudes de agendamiento con nuestros Agentes Inmobiliarios.</p>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha y Hora Sugerida</th>
+                            <th>Propiedad de Interés</th>
+                            <th>Agente Asignado</th>
+                            <th>Teléfono de Contacto</th>
+                            <th>Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+                            <td>
+                                <span class="fw-bold text-dark">{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</span><br>
+                                <small class="text-muted">{{ cita.fecha_hora.strftime('%I:%M %p') }}</small>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=cita.inmueble.id) }}" class="text-decoration-none fw-bold text-primary">
+                                    {{ cita.inmueble.tipo_inmueble }}
+                                </a><br>
+                                <small class="text-muted">{{ cita.inmueble.direccion }}</small>
+                            </td>
+                            <td>
+                                <i class="fas fa-user-tie text-muted me-1"></i> {{ cita.agente.nombre }} {{ cita.agente.apellido }}
+                            </td>
+                            <td>{{ cita.telefono_contacto }}</td>
+                            <td>
+                                {% if cita.estatus == 'Pendiente' %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente</span>
+                                {% elif cita.estatus == 'Confirmada' %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmada</span>
+                                {% elif cita.estatus == 'Reprogramada' %}
+                                    <span class="badge bg-info text-dark"><i class="fas fa-calendar-alt"></i> Reprogramada</span>
+                                {% else %}
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelada</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="fas fa-calendar-times fs-1 mb-3 d-block"></i>
+                                <h5>No tienes visitas programadas</h5>
+                                <p>Explora nuestro catálogo y solicita una cita para visitar la propiedad de tus sueños.</p>
+                                <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-primary rounded-pill mt-2">Ir al Catálogo</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

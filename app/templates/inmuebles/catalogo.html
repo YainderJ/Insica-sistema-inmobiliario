@@ -13,8 +13,18 @@
 <div class="row g-4 mb-5">
     {% for propiedad in propiedades %}
     <div class="col-md-4 col-sm-6">
-        <div class="card h-100 shadow-sm border-0 rounded-4 hover-card">
+        <!-- Efecto de opacidad si la propiedad ya está vendida -->
+        <div class="card h-100 shadow-sm border-0 rounded-4 hover-card {% if propiedad.estatus == 'Vendido' %}opacity-75{% endif %}">
             
+            <!-- ETIQUETA VISUAL DE ESTATUS PARA EL AGENTE -->
+            <div class="position-absolute top-0 end-0 m-3 z-1">
+                {% if propiedad.estatus == 'Disponible' %}
+                    <span class="badge bg-success shadow">Disponible</span>
+                {% else %}
+                    <span class="badge bg-danger shadow">Vendido</span>
+                {% endif %}
+            </div>
+
             <!-- CARRUSEL DE IMÁGENES MÚLTIPLES -->
             {% if propiedad.fotografias and propiedad.fotografias != 'None' and propiedad.fotografias != '' %}
                 {% set lista_fotos = propiedad.fotografias.split(',') %}
@@ -39,7 +49,7 @@
                     {% endif %}
                 </div>
             {% else %}
-                <!-- Fallback Seguro para registros fallidos -->
+                <!-- Fallback Seguro -->
                 <div class="card-img-top rounded-top-4 bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
                     <img src="{{ url_for('static', filename='favicon.png') }}" class="img-fluid opacity-25" alt="Sin foto" style="max-height: 100px; object-fit: contain;">
                 </div>
@@ -56,7 +66,7 @@
                    Ver Detalles
                 </a>
                 
-                <!-- GESTIÓN: BOTÓN ELIMINAR (Solo visible para el Agente creador) -->
+                <!-- GESTIÓN: BOTÓN ELIMINAR -->
                 {% if current_user.id == propiedad.agente_id %}
                 <form action="{{ url_for('inmuebles.eliminar_inmueble', id_inmueble=propiedad.id) }}" method="POST" class="mt-2" onsubmit="return confirm('¿Estás seguro de que deseas borrar esta propiedad permanentemente?');">
                     <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">

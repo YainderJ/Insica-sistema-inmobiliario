@@ -1,82 +1,67 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app import db
 from app.models.venta import Venta
 from app.models.inmueble import Inmueble
 
+# CORRECCIÓN: Nombrado exactamente como 'ventas_bp' para coincidir con app/__init__.py
 ventas_bp = Blueprint('ventas', __name__, url_prefix='/ventas')
 
-@ventas_bp.route('/procesar_cierre/<int:inmueble_id>', methods=['GET', 'POST'])
+@ventas_bp.route('/procesar_cierre/<int:inmueble_id>', methods=['POST'])
 @login_required
 def procesar_cierre(inmueble_id):
-    """
-    Procesos 4.1 y 4.2: Procesar Cierre y Calcular Comisión.
-    Reemplaza la antigua lógica de 'pagos' y 'paquetes'.
-    """
-    # Mapeo de roles base: INSTRUCTOR = Agente Inmobiliario
-    if current_user.rol != 'INSTRUCTOR':
-        flash("Acceso denegado. Solo los Agentes pueden registrar cierres de ventas.", "error")
-        return redirect(url_for('inmuebles.catalogo'))
+    if current_user.rol != 'Agente':
+        return redirect(url_for('auth.panel'))
 
     inmueble = Inmueble.query.get_or_404(inmueble_id)
+    
+    if inmueble.estatus == 'Vendido':
+        flash('Esta propiedad ya ha sido vendida anteriormente.', 'error')
+        return redirect(url_for('inmuebles.catalogo'))
 
-    if request.method == 'POST':
-        # Flujo: "Ingresa datos del cierre"
-        monto_cierre_str = request.form.get('monto_cierre')
-        cliente_id = request.form.get('cliente_id') 
+    monto_ingresado = request.form.get('monto_final', type=float)
 
-        try:
-            monto_cierre = float(monto_cierre_str)
-            
-            # Proceso 4.2: Calcular Comisión (Ej: 5% estándar sobre el monto de cierre)
-            monto_comision = monto_cierre * 0.05
-            
-            # Instancia del nuevo registro para el Almacén D4
-            nueva_venta = Venta(
-                inmueble_id=inmueble.id,
-                cliente_id=cliente_id,
-                agente_id=current_user.id,
-                monto_cierre=monto_cierre,
-                monto_comision=monto_comision
-            )
-            
-            # Actualizamos el estatus del inmueble en el Almacén D1
-            inmueble.estado = 'VENDIDO'
-            
-            # Flujo: "Guarda venta y comisión" hacia D4: Ventas
-            db.session.add(nueva_venta)
-            db.session.commit()
-            
-            flash(f"Venta registrada con éxito. Comisión calculada: ${monto_comision:,.2f}", "success")
-            return redirect(url_for('ventas.reportes'))
-            
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error al procesar el cierre: {str(e)}", "error")
+    if not monto_ingresado or monto_ingresado <= 0:
+        flash('Monto de cierre inválido.', 'error')
+        return redirect(url_for('inmuebles.detalle_inmueble', id_inmueble=inmueble.id))
 
-    # Renderizado del formulario (se creará en la capa de vistas)
-    return render_template('ventas/procesar_cierre.html', inmueble=inmueble)
+    # Instanciamos utilizando la nomenclatura exacta de tu modelo
+    nueva_venta = Venta(
+        inmueble_id=inmueble.id,
+        agente_id=current_user.id,
+        monto_final=monto_ingresado,
+        porcentaje_comision=5.0
+    )
 
-@ventas_bp.route('/reportes', methods=['GET'])
+    # Delegamos la regla de negocio al modelo (Fat Model)
+    comision = nueva_venta.calcular_comision()
+
+    # Actualizamos el estatus en D1 para ocultarlo del catálogo público[cite: 1]
+    inmueble.estatus = 'Vendido'
+
+    db.session.add(nueva_venta)
+    db.session.commit()
+
+    flash(f'Venta cerrada exitosamente. Comisión generada: ${comision:,.2f}', 'success')
+    return redirect(url_for('ventas.mis_ventas'))
+
+
+@ventas_bp.route('/mis_ventas')
 @login_required
-def reportes():
+def mis_ventas():
     """
-    Proceso 4.3: Generar Reporte.
-    El Agente solicita y visualiza sus métricas financieras.
+    Proceso 4.3: Vista interactiva y reporte financiero del Agente.
     """
-    if current_user.rol != 'INSTRUCTOR':
-        flash("Acceso denegado.", "error")
-        return redirect(url_for('dashboard.inicio'))
+    if current_user.rol != 'Agente':
+        return redirect(url_for('auth.panel'))
 
-    # Flujo: "Extrae historial" desde D4: Ventas
-    ventas_realizadas = Venta.query.filter_by(agente_id=current_user.id).order_by(Venta.fecha_cierre.desc()).all()
+    ventas = Venta.query.filter_by(agente_id=current_user.id).order_by(Venta.fecha_venta.desc()).all()
     
-    # Cálculo rápido del reporte acumulado
-    total_comisiones = sum(v.monto_comision for v in ventas_realizadas)
-    total_ventas = sum(v.monto_cierre for v in ventas_realizadas)
-    
-    # Flujo: "Muestra reporte" al Agente
+    # KPIs financieros
+    volumen_total = sum(v.monto_final for v in ventas)
+    comisiones_acumuladas = sum(v.comision_agente for v in ventas)
+
     return render_template('ventas/reportes.html', 
-                           ventas=ventas_realizadas, 
-                           total_comisiones=total_comisiones,
-                           total_ventas=total_ventas)
+                           ventas=ventas, 
+                           volumen_total=volumen_total, 
+                           comisiones_acumuladas=comisiones_acumuladas)

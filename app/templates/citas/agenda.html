@@ -3,99 +3,101 @@
 {% block title %}Agenda de Visitas - INSICA{% endblock %}
 
 {% block content %}
-<div class="row mb-4 align-items-center mt-3">
-    <div class="col-md-8">
-        <h2 class="fw-bold text-primary"><i class="bi bi-calendar-check"></i> Agenda de Citas</h2>
-        <p class="text-muted">Gestiona las solicitudes de visitas a tus propiedades captadas.</p>
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-primary"><i class="bi bi-calendar-check"></i> Agenda de Citas</h2>
+            <p class="text-muted">Gestiona las solicitudes de visitas a tus propiedades captadas.</p>
+        </div>
     </div>
-</div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Fecha y Hora</th>
-                        <th>Cliente</th>
-                        <th>Propiedad</th>
-                        <th>Comentarios</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if citas %}
-                        {% for cita in citas %}
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <td>
-                                <!-- Formateo de la fecha agendada -->
-                                <span class="fw-bold text-primary">{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</span><br>
-                                <small class="text-muted">{{ cita.fecha_hora.strftime('%H:%M') }}</small>
-                            </td>
-                            <td>
-                                <!-- Mapeo del Cliente -->
-                                {{ cita.cliente.nombre }}<br>
-                                <small class="text-muted">{{ cita.cliente.email }}</small>
-                            </td>
-                            <td>
-                                <!-- Mapeo de la Propiedad -->
-                                {{ cita.inmueble.tipo_operacion }} - {{ cita.inmueble.tipo_inmueble }}<br>
-                                <small class="text-muted text-truncate d-inline-block" style="max-width: 150px;">
-                                    {{ cita.inmueble.direccion }}
-                                </small>
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ cita.comentarios or 'Sin comentarios adicionales.' }}</small>
-                            </td>
-                            <td>
-                                {% set color = 'warning' if cita.estado == 'PENDIENTE' else ('success' if cita.estado == 'CONFIRMADA' else 'danger') %}
-                                <span class="badge bg-{{ color }} rounded-pill px-3 py-2">{{ cita.estado }}</span>
-                            </td>
-                            <td>
-                                <!-- Mostrar el teléfono de contacto agregado en el modelo -->
-                                <div class="mb-1 text-dark fw-bold">
-                                    <i class="bi bi-telephone text-success"></i> {{ cita.telefono_contacto or 'No provisto' }}
-                                </div>
-                                <small class="text-muted">{{ cita.comentarios or 'Sin comentarios adicionales.' }}</small>
-                            </td>
-                            
-                            <td>
-                                {% set color = 'warning' if cita.estado == 'PENDIENTE' else ('success' if cita.estado == 'CONFIRMADA' else 'danger') %}
-                                <span class="badge bg-{{ color }} rounded-pill px-3 py-2">{{ cita.estado }}</span>
-                            </td>
-                            
-                            <td>
-                                <!-- Formularios activos para los botones (Proceso 3.3) -->
-                                {% if cita.estado == 'PENDIENTE' %}
-                                    <form action="{{ url_for('citas.cambiar_estado', cita_id=cita.id, nuevo_estado='CONFIRMADA') }}" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 mb-1" title="Confirmar">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-                                    </form>
-                                {% endif %}
-                                
-                                {% if cita.estado != 'CANCELADA' %}
-                                    <form action="{{ url_for('citas.cambiar_estado', cita_id=cita.id, nuevo_estado='CANCELADA') }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas cancelar esta cita?');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 mb-1" title="Cancelar">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </form>
-                                {% endif %}
-                            </td>
+                            <th>Fecha y Hora</th>
+                            <th>Cliente</th>
+                            <th>Propiedad</th>
+                            <th>Contacto</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-calendar2-x fs-1 d-block mb-3"></i>
-                                <h5>No tienes citas programadas.</h5>
-                                <p>Las solicitudes de visitas a tus propiedades aparecerán aquí de forma automática.</p>
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% if citas %}
+                            {% for cita in citas %}
+                            <tr>
+                                <td>
+                                    <!-- Formateo de la fecha agendada -->
+                                    <span class="fw-bold text-primary">{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</span><br>
+                                    <small class="text-muted">{{ cita.fecha_hora.strftime('%I:%M %p') }}</small>
+                                </td>
+                                <td>
+                                    <!-- Datos del Cliente -->
+                                    <span class="fw-bold">{{ cita.cliente.nombre }} {{ cita.cliente.apellido }}</span><br>
+                                    <small class="text-muted">{{ cita.cliente.email }}</small>
+                                </td>
+                                <td>
+                                    <!-- Enlace a la Ficha Técnica de la Propiedad -->
+                                    <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=cita.inmueble.id) }}" class="text-decoration-none fw-bold text-dark">
+                                        {{ cita.inmueble.tipo_operacion }} - {{ cita.inmueble.tipo_inmueble }}
+                                    </a><br>
+                                    <small class="text-muted text-truncate d-inline-block" style="max-width: 150px;">
+                                        {{ cita.inmueble.direccion }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="text-dark fw-bold mb-1">
+                                        <i class="bi bi-telephone text-success"></i> {{ cita.telefono_contacto or 'No provisto' }}
+                                    </div>
+                                    <small class="text-muted" title="{{ cita.comentarios }}">{{ cita.comentarios or 'Sin comentarios.' }}</small>
+                                </td>
+                                <td>
+                                    <!-- Renderizado condicional del Estatus -->
+                                    {% if cita.estatus == 'Pendiente' %}
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente</span>
+                                    {% elif cita.estatus == 'Confirmada' %}
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmada</span>
+                                    {% elif cita.estatus == 'Reprogramada' %}
+                                        <span class="badge bg-info text-dark"><i class="fas fa-calendar-alt"></i> Reprogramada</span>
+                                    {% else %}
+                                        <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelada</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <!-- Proceso 3.3: Gestionar Cita -->
+                                    {% if cita.estatus == 'Pendiente' or cita.estatus == 'Reprogramada' %}
+                                        <form action="{{ url_for('citas.cambiar_estatus', cita_id=cita.id, nuevo_estatus='Confirmada') }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 mb-1" title="Confirmar">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if cita.estatus != 'Cancelada' %}
+                                        <form action="{{ url_for('citas.cambiar_estatus', cita_id=cita.id, nuevo_estatus='Cancelada') }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas cancelar esta cita?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 mb-1" title="Cancelar">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-calendar2-x fs-1 d-block mb-3"></i>
+                                    <h5>No tienes citas programadas.</h5>
+                                    <p>Las solicitudes de visitas a tus propiedades aparecerán aquí de forma automática.</p>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

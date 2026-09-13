@@ -1,59 +1,89 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, request, flash, redirect, url_for, render_template
 from flask_login import login_required, current_user
-from app import db
 from app.models.lead_crm import LeadCRM
 from app.models.inmueble import Inmueble
-from datetime import datetime
+from app import db
 
 crm_bp = Blueprint('crm', __name__, url_prefix='/crm')
 
-@crm_bp.route('/nueva_consulta/<int:inmueble_id>', methods=['POST'])
+# ==========================================
+# PROCESO 2.1: REGISTRAR SOLICITUD (LEAD)
+# ==========================================
+@crm_bp.route('/solicitar_info/<int:inmueble_id>', methods=['POST'])
 @login_required
-def nueva_consulta(inmueble_id):
-    """
-    Proceso 2.1: Registrar Solicitud.
-    El Cliente (antiguo Yogui) envía una consulta sobre una propiedad.
-    """
-    # Mapeo de roles base: YOGUI = Cliente
-    if current_user.rol != 'YOGUI':
-        flash("Solo los clientes registrados pueden enviar consultas.", "error")
-        return redirect(url_for('inmuebles.catalogo'))
-
-    inmueble = Inmueble.query.get_or_404(inmueble_id)
-    mensaje = request.form.get('mensaje', 'Me interesa esta propiedad. Solicito más información.')
-
-    try:
-        # Flujo: "Guarda Lead" hacia el Almacén D2 (LeadCRM)
-        nuevo_lead = LeadCRM(
-            cliente_id=current_user.id,
-            agente_id=inmueble.agente_id,
-            inmueble_id=inmueble.id,
-            historial=f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M')}] Cliente: {mensaje}\n"
-        )
-        db.session.add(nuevo_lead)
-        db.session.commit()
+def registrar_solicitud(inmueble_id):
+    # Validación: Solo los Clientes pueden generar un Lead de compra/alquiler
+    if current_user.rol != 'Cliente':
+        flash('Solo los clientes registrados pueden solicitar información comercial.', 'error')
+        return redirect(url_for('inmuebles.detalle_inmueble', id_inmueble=inmueble_id))
         
-        flash("Tu consulta ha sido enviada al agente encargado.", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error al enviar la consulta: {str(e)}", "error")
+    inmueble = Inmueble.query.get_or_404(inmueble_id)
+    
+    # Captura del mensaje enviado desde el formulario de la ficha del inmueble
+    mensaje = request.form.get('mensaje')
+    
+    if not mensaje:
+        flash('El mensaje de consulta no puede estar vacío.', 'error')
+        return redirect(url_for('inmuebles.detalle_inmueble', id_inmueble=inmueble.id))
 
-    return redirect(url_for('inmuebles.catalogo'))
+    # Inserción del nuevo registro en el Almacén D2: Clientes (Leads)
+    nuevo_lead = LeadCRM(
+        cliente_id=current_user.id,
+        agente_id=inmueble.agente_id,
+        inmueble_id=inmueble.id,
+        mensaje_cliente=mensaje,
+        estatus='Nuevo'
+    )
+    
+    db.session.add(nuevo_lead)
+    db.session.commit()
+    
+    # Notificación de éxito para el Cliente
+    flash('Tu consulta ha sido enviada con éxito. El agente inmobiliario te contactará pronto.', 'success')
+    return redirect(url_for('inmuebles.detalle_inmueble', id_inmueble=inmueble.id))
 
-@crm_bp.route('/panel_leads', methods=['GET'])
+# ==========================================
+# PROCESO 2.4: CONSULTAR HISTORIAL (PANEL CRM)
+# ==========================================
+@crm_bp.route('/panel_leads')
 @login_required
 def panel_leads():
-    """
-    Proceso 2.4: Consultar Historial.
-    El Agente Inmobiliario (antiguo Instructor) visualiza sus prospectos.
-    """
-    # Mapeo de roles base: INSTRUCTOR = Agente Inmobiliario
-    if current_user.rol != 'INSTRUCTOR':
-        flash("Acceso denegado. Área exclusiva para Agentes.", "error")
-        return redirect(url_for('dashboard.inicio'))
+    # Validación: Área exclusiva para Agentes
+    if current_user.rol not in ['Agente', 'Admin']:
+        flash('Acceso denegado. Área exclusiva para el equipo comercial.', 'error')
+        return redirect(url_for('auth.panel'))
+        
+    # Extrae el historial de leads desde el Almacén D2 asignados a este agente
+    leads = LeadCRM.query.filter_by(agente_id=current_user.id).order_by(LeadCRM.fecha_registro.desc()).all()
+    return render_template('crm/panel_leads.html', leads=leads)
 
-    # Flujo: "Extrae registro" desde el Almacén D2
-    leads_asignados = LeadCRM.query.filter_by(agente_id=current_user.id).all()
+# ==========================================
+# PROCESO 2.3: RESPONDER Y ACTUALIZAR LEAD
+# ==========================================
+@crm_bp.route('/gestionar_lead/<int:lead_id>', methods=['POST'])
+@login_required
+def gestionar_lead(lead_id):
+    if current_user.rol not in ['Agente', 'Admin']:
+        return redirect(url_for('auth.panel'))
+
+    lead = LeadCRM.query.get_or_404(lead_id)
     
-    # Renderizamos la vista (las plantillas HTML las crearemos en la siguiente etapa)
-    return render_template('crm/panel_leads.html', leads=leads_asignados)
+    # Seguridad: Evitar que un agente modifique los leads de otro
+    if lead.agente_id != current_user.id:
+        flash('No tienes autorización para gestionar este contacto.', 'error')
+        return redirect(url_for('crm.panel_leads'))
+
+    # Captura de datos del formulario del agente
+    nuevo_estatus = request.form.get('estatus')
+    respuesta = request.form.get('respuesta_agente')
+
+    # Actualización en el Almacén D2
+    if nuevo_estatus in ['Nuevo', 'En Negociación', 'Descartado']:
+        lead.estatus = nuevo_estatus
+        
+    if respuesta:
+        lead.respuesta_agente = respuesta
+
+    db.session.commit()
+    flash('El estado del prospecto ha sido actualizado exitosamente.', 'success')
+    return redirect(url_for('crm.panel_leads'))

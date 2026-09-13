@@ -1,96 +1,72 @@
-{% extends 'base/base.html' %}
+{% extends "base/base.html" %}
 
-{% block title %}Reportes de Ventas - INSICA{% endblock %}
+{% block title %}Mis Ventas - INSICA{% endblock %}
 
 {% block content %}
-<div class="row mb-4 align-items-center mt-3">
-    <div class="col-md-8">
-        <h2 class="fw-bold text-primary"><i class="bi bi-cash-coin"></i> Reportes de Ventas y Comisiones</h2>
-        <p class="text-muted">Visualiza tu historial de cierres y métricas financieras.</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-chart-line text-success"></i> Reporte Financiero: Mis Ventas</h2>
     </div>
-    <div class="col-md-4 text-end">
-        <!-- Botón para el Proceso 4.1 Registrar Cierre -->
-        <!-- La ruta ventas.procesar_cierre se conectará dinámicamente desde el catálogo -->
-        <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-success rounded-pill px-4">
-            <i class="bi bi-plus-circle"></i> Captar / Vender
-        </a>
-    </div>
-</div>
-
-<!-- Tarjetas de resumen financiero (Métricas) -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card text-white bg-primary shadow-sm border-0 rounded-4">
-            <div class="card-body p-4">
-                <h5 class="card-title"><i class="bi bi-graph-up-arrow"></i> Total Ventas Cerradas</h5>
-                <h2 class="display-5 fw-bold">${{ "{:,.2f}".format(total_ventas) }}</h2>
+    
+    <!-- Tarjetas de Indicadores -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 border-start border-primary border-4 mb-3">
+                <div class="card-body">
+                    <h5 class="text-muted text-uppercase small">Volumen Transaccionado</h5>
+                    <h3 class="card-title text-primary">${{ "{:,.2f}".format(volumen_total) }}</h3>
+                    <p class="card-text small text-muted">Total de inmuebles vendidos acumulados.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 border-start border-success border-4 mb-3">
+                <div class="card-body">
+                    <h5 class="text-muted text-uppercase small">Comisiones Netas</h5>
+                    <h3 class="card-title text-success">${{ "{:,.2f}".format(comisiones_acumuladas) }}</h3>
+                    <p class="card-text small text-muted">Honorarios acumulados por ventas cerradas.</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card text-white bg-success shadow-sm border-0 rounded-4">
-            <div class="card-body p-4">
-                <h5 class="card-title"><i class="bi bi-wallet2"></i> Total Comisiones Generadas</h5>
-                <h2 class="display-5 fw-bold">${{ "{:,.2f}".format(total_comisiones) }}</h2>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Fecha de Cierre</th>
-                        <th>Propiedad</th>
-                        <th>Cliente</th>
-                        <th>Monto del Cierre</th>
-                        <th>Comisión (5%)</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if ventas %}
-                        {% for venta in ventas %}
-                        <tr>
-                            <td>
-                                <span class="fw-bold">{{ venta.fecha_cierre.strftime('%d/%m/%Y') }}</span>
-                            </td>
-                            <td>
-                                <!-- Mapeo: Datos del Inmueble -->
-                                {{ venta.inmueble.tipo_operacion }} - {{ venta.inmueble.tipo_inmueble }}<br>
-                                <small class="text-muted text-truncate d-inline-block" style="max-width: 150px;">
-                                    {{ venta.inmueble.direccion }}
-                                </small>
-                            </td>
-                            <td>
-                                <!-- Mapeo: Datos del Cliente -->
-                                {{ venta.cliente.nombre }}
-                            </td>
-                            <td class="fw-bold">
-                                ${{ "{:,.2f}".format(venta.monto_cierre) }}
-                            </td>
-                            <td class="fw-bold text-success">
-                                ${{ "{:,.2f}".format(venta.monto_comision) }}
-                            </td>
-                            <td>
-                                <span class="badge bg-success rounded-pill px-3 py-2">PAGADA</span>
-                            </td>
-                        </tr>
-                        {% endfor %}
+    <!-- Historial del Almacén D4 -->
+    <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>Fecha</th>
+                <th>Propiedad</th>
+                <th>Precio de Cierre</th>
+                <th>% Comisión</th>
+                <th>Honorarios</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.fecha_venta.strftime('%d/%m/%Y') if venta.fecha_venta else 'N/A' }}</td>
+                <td>
+                    {% if venta.inmueble %}
+                        <span class="fw-bold text-dark">{{ venta.inmueble.tipo_operacion }} - {{ venta.inmueble.tipo_inmueble }}</span><br>
+                        <small class="text-muted">{{ venta.inmueble.direccion }}</small>
                     {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-receipt fs-1 d-block mb-3"></i>
-                                <h5>No tienes ventas registradas.</h5>
-                                <p>Cuando proceses un cierre, el cálculo de tus comisiones aparecerá aquí.</p>
-                            </td>
-                        </tr>
+                        <span class="text-muted">Propiedad no vinculada</span>
                     {% endif %}
-                </tbody>
-            </table>
+                </td>
+                <!-- Consumiendo los atributos exactos de tu modelo venta.py -->
+                <td class="fw-bold">${{ "{:,.2f}".format(venta.monto_final or 0.0) }}</td>
+                <td><span class="badge bg-secondary">{{ venta.porcentaje_comision }}%</span></td>
+                <td class="text-success fw-bold">${{ "{:,.2f}".format(venta.comision_agente or 0.0) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-4 text-muted">Aún no has registrado cierres de ventas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
         </div>
     </div>
 </div>

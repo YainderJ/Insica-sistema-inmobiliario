@@ -14,33 +14,26 @@ class DatosCreacionUsuario:
 
 
 class UsuarioFactory:
-    """Factory Method para crear usuarios por rol."""
+    """Factory Method para crear usuarios por rol en el dominio inmobiliario."""
 
     _creadores: Dict[str, Callable[[DatosCreacionUsuario], Usuario]] = {
-        "YOGUI": lambda datos: Usuario(
+        "Cliente": lambda datos: Usuario(
             nombre=datos.nombre,
             email=datos.email,
             password_hash=datos.password_hash,
-            rol="YOGUI",
-            saldo_clases=0,
+            rol="Cliente",
         ),
-        "INSTRUCTOR": lambda datos: Usuario(
+        "Agente": lambda datos: Usuario(
             nombre=datos.nombre,
             email=datos.email,
             password_hash=datos.password_hash,
-            rol="INSTRUCTOR",
+            rol="Agente",
         ),
-        "ADMIN_SHALA": lambda datos: Usuario(
+        "Admin": lambda datos: Usuario(
             nombre=datos.nombre,
             email=datos.email,
             password_hash=datos.password_hash,
-            rol="ADMIN_SHALA",
-        ),
-        "ADMIN": lambda datos: Usuario(
-            nombre=datos.nombre,
-            email=datos.email,
-            password_hash=datos.password_hash,
-            rol="ADMIN",
+            rol="Admin",
         ),
     }
 
@@ -53,9 +46,8 @@ class UsuarioFactory:
         email: str,
         password_hash: str,
     ) -> Usuario:
-        creador = cls._creadores.get(rol)
-        if not creador:
-            raise ValueError(f"Rol inválido para creación: {rol}")
+        # Por seguridad y alineación arquitectónica, si el rol no es válido, se asigna 'Cliente' por defecto.
+        creador = cls._creadores.get(rol, cls._creadores["Cliente"])
 
         return creador(
             DatosCreacionUsuario(

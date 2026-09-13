@@ -20,54 +20,71 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/"> INSICA </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    {% if current_user.is_authenticated %}
-                        
-                        <!-- Opción Global: Buscar Propiedades -->
-                        <li class="nav-item me-2">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill px-3" href="{{ url_for('inmuebles.catalogo') }}">
-                                <i class="bi bi-search"></i> Catálogo
-                            </a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{{ url_for('auth.panel') }}">
+            <i class="fas fa-building text-primary"></i> INSICA
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                {% if current_user.is_authenticated %}
+                    
+                    <!-- NAVEGACIÓN CONDICIONAL: ROL CLIENTE -->
+                    {% if current_user.rol == 'Cliente' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('inmuebles.catalogo') }}">Catálogo</a>
                         </li>
-                        
-                        <!-- MÓDULOS DEL AGENTE INMOBILIARIO (Antiguo Instructor) -->
-                        {% if current_user.rol == 'INSTRUCTOR' %}
-                            <li class="nav-item"><a class="nav-link fw-bold" href="{{ url_for('inmuebles.registrar_inmueble') }}">Captar Inmueble</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('crm.panel_leads') }}">Leads CRM</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('citas.consultar_agenda') }}">Agenda</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('ventas.reportes') }}">Ventas</a></li>
-                        {% endif %}
-
-                        <!-- Datos del usuario y botón de salida (Intocable de auth.py) -->
-                        <li class="nav-item ms-3">
-                            <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" href="#">
-                                <i class="bi bi-person-circle"></i> {{ current_user.nombre }}
-                            </a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('citas.mis_visitas') }}">Mis Visitas</a>
                         </li>
-                        <li class="nav-item ms-2">
-                            <a class="btn btn-danger btn-sm rounded-pill px-3" href="{{ url_for('auth.cerrar_sesion') }}">
-                                Salir
-                            </a>
-                        </li>
-                        
+                    
+                    <!-- NAVEGACIÓN CONDICIONAL: ROL AGENTE -->
                     {% else %}
-                        <!-- Rutas no autenticadas (Intocables) -->
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.iniciar_sesion') }}">Iniciar sesión</a></li>
-                        <li class="nav-item ms-2"><a class="btn btn-primary rounded-pill px-4" href="{{ url_for('auth.registro') }}">Registrarse</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('inmuebles.catalogo') }}">Catálogo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('inmuebles.registrar_inmueble') }}">Captar Inmueble</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('crm.panel_leads') }}">Leads CRM</a>
+                        </li>
+                        <li class="nav-item">
+                            
+                        <li class="nav-item">
+        <a class="nav-link text-primary fw-bold" href="{{ url_for('citas.agenda') }}">
+            <i class="bi bi-calendar-check"></i> Mi Agenda
+        </a>
+    </li>
+                            <!-- AQUÍ SE CORRIGE EL ERROR DEL BUILDERROR -->
+                            <a class="nav-link" href="{{ url_for('ventas.mis_ventas') }}">Mis Ventas</a>
+                        </li>
                     {% endif %}
-                </ul>
-            </div>
+                    
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            <i class="fas fa-user-circle"></i> {{ current_user.nombre }} <small>({{ current_user.rol }})</small>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{{ url_for('auth.cerrar_sesion') }}">Salir</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.iniciar_sesion') }}">Ingresar</a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Contenedor principal con manejo de alertas nativo de Bootstrap -->
     <div class="container mt-4 mb-5">

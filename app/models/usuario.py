@@ -6,21 +6,19 @@ class Usuario(UserMixin, db.Model):
     __tablename__ = "usuario"
 
     # ==========================================
-    # NÚCLEO DE AUTENTICACIÓN (INTOCABLE)
-    # Mapeo: 'YOGUI' -> Cliente | 'INSTRUCTOR' -> Agente Inmobiliario
+    # NÚCLEO DE AUTENTICACIÓN - INSICA
+    # Roles del dominio inmobiliario: Cliente, Agente, Admin
     # ==========================================
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     telefono = db.Column(db.String(30))
     password_hash = db.Column(db.String(255), nullable=False)
-    rol = db.Column(
-        db.Enum("ADMIN", "ADMIN_SHALA", "INSTRUCTOR", "YOGUI"), nullable=False
-    )
-    fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Campo heredado del sistema base (se mantiene para no generar conflictos con auth.py)
-    saldo_clases = db.Column(db.Integer, default=0)
+    # Campo abierto y libre de Enums heredados para evitar LookupError
+    rol = db.Column(db.String(20), nullable=False, default='Cliente')
+    
+    fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
 
     # ==========================================
     # NOTA ARQUITECTÓNICA - INSICA
