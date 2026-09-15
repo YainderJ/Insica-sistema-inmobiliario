@@ -3,70 +3,89 @@
 {% block title %}Mis Ventas - INSICA{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
+    <!-- Cabecera -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-chart-line text-success"></i> Reporte Financiero: Mis Ventas</h2>
+        <div>
+            <h2 class="fw-bold text-primary mb-1"><i class="bi bi-graph-up-arrow me-2"></i>Reporte Financiero: Mis Ventas</h2>
+            <p class="text-muted mb-0">Métricas de rendimiento y comisiones acumuladas.</p>
+        </div>
     </div>
     
-    <!-- Tarjetas de Indicadores -->
-    <div class="row mb-4">
+    <!-- Tarjetas de Indicadores (Dashboard Style) -->
+    <div class="row g-4 mb-5">
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 border-start border-primary border-4 mb-3">
-                <div class="card-body">
-                    <h5 class="text-muted text-uppercase small">Volumen Transaccionado</h5>
-                    <h3 class="card-title text-primary">${{ "{:,.2f}".format(volumen_total) }}</h3>
-                    <p class="card-text small text-muted">Total de inmuebles vendidos acumulados.</p>
+            <div class="card border-0 shadow-sm rounded-4 h-100 text-white p-4" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 text-white-50 text-uppercase small">Volumen Transaccionado</h6>
+                    <i class="bi bi-cash-stack fs-2 opacity-50"></i>
                 </div>
+                <h2 class="fw-bold display-6 mb-0">${{ "{:,.2f}".format(volumen_total) }}</h2>
+                <p class="small text-white-50 mb-0 mt-2">Total de inmuebles vendidos acumulados.</p>
             </div>
         </div>
+        
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 border-start border-success border-4 mb-3">
-                <div class="card-body">
-                    <h5 class="text-muted text-uppercase small">Comisiones Netas</h5>
-                    <h3 class="card-title text-success">${{ "{:,.2f}".format(comisiones_acumuladas) }}</h3>
-                    <p class="card-text small text-muted">Honorarios acumulados por ventas cerradas.</p>
+            <div class="card border-0 shadow-sm rounded-4 h-100 text-white p-4" style="background: linear-gradient(135deg, #198754, #146c43);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 text-white-50 text-uppercase small">Comisiones Netas</h6>
+                    <i class="bi bi-wallet2 fs-2 opacity-50"></i>
                 </div>
+                <h2 class="fw-bold display-6 mb-0">${{ "{:,.2f}".format(comisiones_acumuladas) }}</h2>
+                <p class="small text-white-50 mb-0 mt-2">Honorarios acumulados por ventas cerradas.</p>
             </div>
         </div>
     </div>
 
     <!-- Historial del Almacén D4 -->
-    <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-            <tr>
-                <th>Fecha</th>
-                <th>Propiedad</th>
-                <th>Precio de Cierre</th>
-                <th>% Comisión</th>
-                <th>Honorarios</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for venta in ventas %}
-            <tr>
-                <td>{{ venta.fecha_venta.strftime('%d/%m/%Y') if venta.fecha_venta else 'N/A' }}</td>
-                <td>
-                    {% if venta.inmueble %}
-                        <span class="fw-bold text-dark">{{ venta.inmueble.tipo_operacion }} - {{ venta.inmueble.tipo_inmueble }}</span><br>
-                        <small class="text-muted">{{ venta.inmueble.direccion }}</small>
-                    {% else %}
-                        <span class="text-muted">Propiedad no vinculada</span>
-                    {% endif %}
-                </td>
-                <!-- Consumiendo los atributos exactos de tu modelo venta.py -->
-                <td class="fw-bold">${{ "{:,.2f}".format(venta.monto_final or 0.0) }}</td>
-                <td><span class="badge bg-secondary">{{ venta.porcentaje_comision }}%</span></td>
-                <td class="text-success fw-bold">${{ "{:,.2f}".format(venta.comision_agente or 0.0) }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="text-center py-4 text-muted">Aún no has registrado cierres de ventas.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+    <h5 class="fw-bold text-dark mb-3">Historial de Cierres</h5>
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4 py-3">Fecha</th>
+                            <th class="py-3">Propiedad</th>
+                            <th class="py-3">Precio de Cierre</th>
+                            <th class="py-3 text-center">% Comisión</th>
+                            <th class="pe-4 py-3 text-end">Honorarios</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in ventas %}
+                        <tr>
+                            <td class="ps-4 py-3 text-muted fw-semibold">{{ venta.fecha_venta.strftime('%d/%m/%Y') if venta.fecha_venta else 'N/A' }}</td>
+                            <td class="py-3">
+                                {% if venta.inmueble %}
+                                    <span class="fw-bold text-dark">{{ venta.inmueble.tipo_operacion }} - {{ venta.inmueble.tipo_inmueble }}</span><br>
+                                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ venta.inmueble.direccion }}</small>
+                                {% else %}
+                                    <span class="text-muted fst-italic">Propiedad no vinculada</span>
+                                {% endif %}
+                            </td>
+                            <!-- Consumiendo los atributos exactos de tu modelo venta.py -->
+                            <td class="py-3 fw-bold text-dark">${{ "{:,.2f}".format(venta.monto_final or 0.0) }}</td>
+                            <td class="py-3 text-center">
+                                <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">{{ venta.porcentaje_comision }}%</span>
+                            </td>
+                            <td class="pe-4 py-3 text-success fw-bold text-end fs-5">${{ "{:,.2f}".format(venta.comision_agente or 0.0) }}</td>
+                        </tr>
+                        {% else %}
+                        <!-- Estado Vacío Armonizado -->
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                    <i class="bi bi-piggy-bank text-muted fs-1"></i>
+                                </div>
+                                <h5 class="fw-bold text-dark">Sin registros de ventas</h5>
+                                <p class="text-muted small mb-0">Aún no has formalizado cierres comerciales en el sistema.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

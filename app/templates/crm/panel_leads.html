@@ -3,94 +3,99 @@
 {% block title %}Panel CRM - INSICA{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
+    <!-- Cabecera -->
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
-            <h2 class="fw-bold text-primary"><i class="bi bi-funnel-fill"></i> Panel CRM: Gestión de Leads</h2>
-            <p class="text-muted">Administra las consultas de tus clientes potenciales y optimiza tus cierres de ventas.</p>
+            <h2 class="fw-bold text-primary mb-1"><i class="bi bi-funnel-fill me-2"></i>Panel CRM: Gestión de Leads</h2>
+            <p class="text-muted mb-0">Administra las consultas de tus clientes potenciales y optimiza tus cierres de ventas.</p>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <!-- Contenedor Principal (Tarjeta) -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                    <thead class="table-light text-muted small text-uppercase">
                         <tr>
-                            <th>Fecha</th>
-                            <th>Cliente Prospecto</th>
-                            <th>Inmueble de Interés</th>
-                            <th>Mensaje Original</th>
-                            <th>Estatus</th>
-                            <th>Gestión Comercial</th>
+                            <th class="ps-4 py-3">Fecha</th>
+                            <th class="py-3">Cliente Prospecto</th>
+                            <th class="py-3">Inmueble de Interés</th>
+                            <th class="py-3">Mensaje Original</th>
+                            <th class="py-3">Estatus</th>
+                            <th class="pe-4 py-3">Gestión Comercial</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for lead in leads %}
                         <tr>
-                            <td>
-                                <span class="fw-bold">{{ lead.fecha_registro.strftime('%d/%m/%Y') }}</span><br>
-                                <small class="text-muted">{{ lead.fecha_registro.strftime('%I:%M %p') }}</small>
+                            <td class="ps-4 py-3">
+                                <span class="fw-bold text-dark">{{ lead.fecha_registro.strftime('%d/%m/%Y') }}</span><br>
+                                <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ lead.fecha_registro.strftime('%I:%M %p') }}</small>
                             </td>
-                            <td>
-                                <strong>{{ lead.cliente.nombre }} {{ lead.cliente.apellido }}</strong><br>
-                                <a href="mailto:{{ lead.cliente.email }}" class="text-decoration-none small"><i class="bi bi-envelope"></i> {{ lead.cliente.email }}</a>
+                            <td class="py-3">
+                                <strong class="text-dark">{{ lead.cliente.nombre }} {{ lead.cliente.apellido }}</strong><br>
+                                <a href="mailto:{{ lead.cliente.email }}" class="text-decoration-none small text-primary fw-semibold"><i class="bi bi-envelope me-1"></i>{{ lead.cliente.email }}</a>
                             </td>
-                            <td>
-                                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=lead.inmueble.id) }}" class="text-decoration-none fw-bold text-dark">
-                                    {{ lead.inmueble.tipo_operacion }} - {{ lead.inmueble.tipo_inmueble }}
+                            <td class="py-3">
+                                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=lead.inmueble.id) }}" class="text-decoration-none fw-bold text-primary">
+                                    {{ lead.inmueble.tipo_operacion }} - {{ lead.inmueble.tipo_inmueble }} <i class="bi bi-box-arrow-up-right ms-1 small"></i>
                                 </a><br>
-                                <small class="text-muted text-truncate d-inline-block" style="max-width: 150px;">{{ lead.inmueble.direccion }}</small>
+                                <small class="text-muted text-truncate d-inline-block" style="max-width: 150px;"><i class="bi bi-geo-alt me-1"></i>{{ lead.inmueble.direccion }}</small>
                             </td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMensaje{{ lead.id }}">
-                                    <i class="bi bi-chat-text"></i> Leer Consulta
+                            <td class="py-3">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#modalMensaje{{ lead.id }}">
+                                    <i class="bi bi-chat-text me-1"></i> Leer
                                 </button>
                             </td>
-                            <td>
+                            <td class="py-3">
                                 {% if lead.estatus == 'Nuevo' %}
-                                    <span class="badge bg-primary rounded-pill px-3 py-2">Nuevo</span>
+                                    <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">Nuevo</span>
                                 {% elif lead.estatus == 'En Negociación' %}
-                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">En Negociación</span>
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm">En Negociación</span>
                                 {% else %}
-                                    <span class="badge bg-secondary rounded-pill px-3 py-2">Descartado</span>
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2 shadow-sm">Descartado</span>
                                 {% endif %}
                             </td>
-                            <td>
+                            <td class="pe-4 py-3">
                                 <!-- Formulario rápido de actualización de estatus -->
                                 <form action="{{ url_for('crm.gestionar_lead', lead_id=lead.id) }}" method="POST" class="d-flex align-items-center gap-2">
-                                    <select name="estatus" class="form-select form-select-sm" style="width: 140px;">
+                                    <select name="estatus" class="form-select form-select-sm rounded-pill shadow-sm bg-light border-0" style="width: 145px; cursor: pointer;">
                                         <option value="Nuevo" {% if lead.estatus == 'Nuevo' %}selected{% endif %}>Nuevo</option>
                                         <option value="En Negociación" {% if lead.estatus == 'En Negociación' %}selected{% endif %}>En Negociación</option>
                                         <option value="Descartado" {% if lead.estatus == 'Descartado' %}selected{% endif %}>Descartado</option>
                                     </select>
-                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-arrow-repeat"></i></button>
+                                    <button type="submit" class="btn btn-sm btn-success rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Actualizar Estatus">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
 
-                        <!-- Modal para ver el mensaje y agregar notas -->
+                        <!-- Modal estilizada para ver el mensaje y agregar notas -->
                         <div class="modal fade" id="modalMensaje{{ lead.id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border-0 shadow">
-                                    <div class="modal-header bg-dark text-white">
-                                        <h5 class="modal-title"><i class="bi bi-person-lines-fill me-2"></i>Detalle de la Consulta</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                <div class="modal-content border-0 shadow rounded-4">
+                                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                        <h5 class="modal-title fw-bold text-dark"><i class="bi bi-person-lines-fill text-primary me-2"></i>Detalle de la Consulta</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
-                                    <div class="modal-body bg-light">
-                                        <div class="p-3 bg-white rounded shadow-sm mb-3">
-                                            <h6 class="fw-bold text-primary mb-1">Mensaje del Cliente:</h6>
-                                            <p class="mb-0 text-dark">"{{ lead.mensaje_cliente }}"</p>
+                                    <div class="modal-body p-4">
+                                        <div class="p-3 bg-light rounded-3 mb-4 border border-white shadow-sm">
+                                            <h6 class="fw-bold text-primary small text-uppercase mb-2">Mensaje del Cliente:</h6>
+                                            <p class="mb-0 text-dark fst-italic">"{{ lead.mensaje_cliente }}"</p>
                                         </div>
                                         
                                         <form action="{{ url_for('crm.gestionar_lead', lead_id=lead.id) }}" method="POST">
                                             <input type="hidden" name="estatus" value="{{ lead.estatus }}">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold text-muted">Notas Internas del Agente</label>
-                                                <textarea name="respuesta_agente" class="form-control" rows="3" placeholder="Registra aquí los acuerdos o llamadas realizadas...">{{ lead.respuesta_agente or '' }}</textarea>
+                                            <div class="mb-4">
+                                                <label class="form-label fw-bold text-muted small text-uppercase">Notas Internas del Agente</label>
+                                                <textarea name="respuesta_agente" class="form-control bg-light border-0 rounded-3" rows="4" placeholder="Registra aquí los acuerdos o llamadas realizadas...">{{ lead.respuesta_agente or '' }}</textarea>
                                             </div>
                                             <div class="text-end">
-                                                <button type="submit" class="btn btn-primary px-4 rounded-pill">Guardar Notas</button>
+                                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 me-2" data-bs-dismiss="modal">Cerrar</button>
+                                                <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm fw-bold"><i class="bi bi-save me-2"></i> Guardar Notas</button>
                                             </div>
                                         </form>
                                     </div>
@@ -98,11 +103,14 @@
                             </div>
                         </div>
                         {% else %}
+                        <!-- Estado Vacío Armonizado -->
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                <h5>Bandeja de Leads Vacía</h5>
-                                <p>Aún no has recibido consultas de clientes potenciales.</p>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                    <i class="bi bi-inbox text-muted fs-1"></i>
+                                </div>
+                                <h5 class="fw-bold text-dark">Bandeja de Leads Vacía</h5>
+                                <p class="text-muted small mb-0">Aún no has recibido consultas de clientes potenciales.</p>
                             </td>
                         </tr>
                         {% endfor %}

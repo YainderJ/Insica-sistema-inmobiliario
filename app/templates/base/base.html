@@ -33,15 +33,22 @@
         </button>
         
         <div class="collapse navbar-collapse" id="navbarPrincipal">
-            <!-- ENLACES PÚBLICOS (Siempre visibles) -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold text-dark hover-primary" href="{{ url_for('inmuebles.inicio') }}">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold text-dark hover-primary" href="{{ url_for('inmuebles.catalogo') }}">Inmuebles</a>
-                </li>
-            </ul>
+            <!-- Enlaces principales de navegación -->
+<ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-2">
+    <li class="nav-item">
+        <a class="nav-link text-dark fw-semibold" href="{{ url_for('inmuebles.inicio') }}">Inicio</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark fw-semibold" href="{{ url_for('inmuebles.catalogo') }}">Inmuebles</a>
+    </li>
+    <!-- NUEVOS ENLACES INSTITUCIONALES -->
+    <li class="nav-item">
+        <a class="nav-link text-dark fw-semibold" href="{{ url_for('inmuebles.nosotros') }}">Quiénes Somos</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark fw-semibold" href="{{ url_for('inmuebles.contacto') }}">Contacto</a>
+    </li>
+</ul>
 
             <!-- ZONA DERECHA: Lógica Dinámica de Sesión (MVC) -->
             <ul class="navbar-nav ms-auto align-items-center">

@@ -109,9 +109,16 @@
                             <span class="bg-light px-2">O</span>
                         </div>
                         
-                        <a href="https://wa.me/{{ agente.telefono|default('584246183548') }}?text=Hola, me interesa la propiedad ubicada en {{ inmueble.direccion }}" target="_blank" class="btn btn-success w-100 py-2 fw-bold rounded-pill">
-                            <i class="bi bi-whatsapp me-2"></i> Conversar por WhatsApp
-                        </a>
+                        <!-- Variable dinámica con el mensaje corporativo para WhatsApp -->
+{% set mensaje_ws = "Hola, me comunico desde la plataforma INSICA. Estoy interesado en recibir más información sobre la propiedad: " ~ inmueble.tipo_inmueble ~ " en " ~ inmueble.tipo_operacion ~ " ubicada en " ~ inmueble.direccion ~ " (Ref. ID: " ~ inmueble.id ~ "). ¿Me podría brindar más detalles?" %}
+
+<div class="text-center text-muted mb-3">
+    <span class="bg-light px-2">O</span>
+</div>
+
+<a href="https://wa.me/{{ agente.telefono|default('584246183548')|replace('+', '')|replace(' ', '') }}?text={{ mensaje_ws|urlencode }}" target="_blank" class="btn btn-success w-100 py-2 fw-bold rounded-pill">
+    <i class="bi bi-whatsapp me-2"></i> Conversar por WhatsApp
+</a>
                     </div>
                 </div>
                 {% else %}
@@ -121,17 +128,49 @@
                 </div>
                 {% endif %}
 
-                <!-- Tarjeta del Asesor -->
-                <div class="card mt-4 border-0 bg-light rounded-4 p-3 shadow-sm text-center">
-                    <h6 class="fw-bold text-muted mb-2">Agente Asignado</h6>
-                    <div class="d-flex align-items-center justify-content-center flex-column">
-                        <i class="bi bi-person-circle display-4 text-primary mb-2"></i>
-                        <h5 class="fw-bold mb-1">{{ agente.nombre|default('Asesor') }}</h5>
-                        <p class="small text-muted mb-2">Contacto directo y personalizado</p>
-                    </div>
+                <!-- Tarjeta del Agente Encargado (Lateral) -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4 text-center">
+        <h6 class="fw-bold text-muted small mb-3">AGENTE ENCARGADO</h6>
+        
+        <div class="mb-3">
+
+            <!-- INICIO CONDICIONAL FOTO -->
+            {% if agente.foto_perfil and agente.foto_perfil != 'default_avatar.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + agente.foto_perfil) }}" 
+                     alt="Asesor INSICA" 
+                     class="rounded-circle shadow-sm" 
+                     style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #f8f9fa;">
+            {% else %}
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center mx-auto shadow-sm" style="width: 100px; height: 100px; border: 3px solid #f8f9fa;">
+                    <i class="bi bi-person text-secondary" style="font-size: 3rem;"></i>
                 </div>
             {% endif %}
-            
+            <!-- FIN CONDICIONAL FOTO -->
+           </div>
+        
+           <h5 class="fw-bold text-dark mb-1">{{ agente.nombre }} {{ agente.apellido }}</h5>
+            <p class="small text-muted mb-3"><i class="bi bi-envelope text-primary me-1"></i> {{ agente.email }}</p>
+        
+           <!-- INICIO CONDICIONAL TELÉFONO -->
+{% if agente.telefono %}
+    <!-- Reutilizamos la lógica del mensaje dinámico -->
+    {% set mensaje_ws_agente = "Hola " ~ agente.nombre ~ ", me comunico desde la plataforma INSICA. Estoy interesado en recibir más información sobre la propiedad: " ~ inmueble.tipo_inmueble ~ " en " ~ inmueble.tipo_operacion ~ " ubicada en " ~ inmueble.direccion ~ " (Ref. ID: " ~ inmueble.id ~ "). ¿Podríamos conversar al respecto?" %}
+    
+    <a href="https://wa.me/{{ agente.telefono|replace('+', '')|replace(' ', '') }}?text={{ mensaje_ws_agente|urlencode }}" 
+       target="_blank" class="btn btn-success w-100 rounded-pill fw-bold mb-2">
+        <i class="bi bi-whatsapp me-2"></i> Escribir al Agente
+    </a>
+{% else %}
+    <button class="btn btn-secondary w-100 rounded-pill fw-bold mb-2" disabled>
+        Sin contacto registrado
+    </button>
+{% endif %}
+<!-- FIN CONDICIONAL TELÉFONO -->
+                </div>
+           </div>
+            {% endif %}
+
             <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-link text-muted text-decoration-none mt-3 text-center d-block">
                 <i class="bi bi-arrow-left"></i> Volver al Catálogo
             </a>

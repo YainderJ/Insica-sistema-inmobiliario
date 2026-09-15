@@ -8,6 +8,10 @@ from app.models.inmueble import Inmueble
 from app.models.cita import Cita
 from app.models.lead_crm import LeadCRM
 from app.models.venta import Venta
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app
+
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -76,45 +80,91 @@ def iniciar_sesion():
 def panel():
     """
     Dashboard Ejecutivo.
-    Centraliza métricas de los 4 módulos operativos para el equipo comercial.
+    Centraliza métricas de los 4 módulos operativos aislando los datos 
+    según el rol (Admin = Global, Agente = Individual).
     """
     # Redirección de seguridad si un Cliente intenta acceder escribiendo la URL manual
     if current_user.rol.lower() not in ['agente', 'admin']:
         return redirect(url_for('citas.mis_visitas'))
 
-    # Extracción de Métricas (KPIs)
-    # 1. Total en Ventas (Suma de montos finales del Almacén D4)
-    total_ventas = db.session.query(func.sum(Venta.monto_final)).scalar() or 0.0
-    
-    # 2. Inmuebles Disponibles (Conteo del Almacén D1)
-    inmuebles_disponibles = Inmueble.query.filter_by(estatus='Disponible').count()
-    
-    # 3. Leads Nuevos / Activos (Conteo del Almacén D2)
-    leads_activos = LeadCRM.query.filter_by(estatus='Nuevo').count()
-    
-    # 4. Citas Pendientes (Conteo del Almacén D3)
-    citas_pendientes = Cita.query.filter_by(estatus='Pendiente').count()
+    # ==========================================
+    # 1. MÉTRICAS GLOBALES (Visión del Administrador)
+    # ==========================================
+    if current_user.rol == 'Admin':
+        total_ventas = db.session.query(func.sum(Venta.monto_final)).scalar() or 0.0
+        inmuebles_disponibles = Inmueble.query.filter_by(estatus='Disponible').count()
+        leads_activos = LeadCRM.query.filter_by(estatus='Nuevo').count()
+        citas_pendientes = Cita.query.filter_by(estatus='Pendiente').count()
+        
+        titulo_panel = "Resumen Global de la Agencia"
 
+    # ==========================================
+    # 2. MÉTRICAS INDIVIDUALES (Visión del Agente Inmobiliario)
+    # ==========================================
+    else:
+        # Filtramos estrictamente por el ID del agente actual (current_user.id)
+        
+        # Suma de ventas donde el inmueble vinculado pertenece al agente
+        total_ventas = db.session.query(func.sum(Venta.monto_final))\
+            .join(Inmueble).filter(Inmueble.agente_id == current_user.id).scalar() or 0.0
+        
+        # Conteo de inmuebles propios disponibles
+        inmuebles_disponibles = Inmueble.query.filter_by(estatus='Disponible', agente_id=current_user.id).count()
+        
+        # Conteo de Leads vinculados a los inmuebles del agente
+        leads_activos = LeadCRM.query.join(Inmueble)\
+            .filter(Inmueble.agente_id == current_user.id, LeadCRM.estatus == 'Nuevo').count()
+        
+        # Conteo de Citas vinculadas a los inmuebles del agente
+        citas_pendientes = Cita.query.join(Inmueble)\
+            .filter(Inmueble.agente_id == current_user.id, Cita.estatus == 'Pendiente').count()
+            
+        titulo_panel = "Mi Rendimiento Operativo"
+
+    # Renderizamos la vista pasando las variables correspondientes
     return render_template('dashboard/panel.html', 
                            total_ventas=total_ventas,
                            inmuebles_disponibles=inmuebles_disponibles,
                            leads_activos=leads_activos,
-                           citas_pendientes=citas_pendientes)
+                           citas_pendientes=citas_pendientes,
+                           titulo_panel=titulo_panel)
 
 
-@auth_bp.route("/perfil", methods=["GET", "POST"])
+@auth_bp.route('/perfil', methods=['GET', 'POST'])
 @login_required
 def perfil():
-    """Gestión de perfil base para cualquier rol del sistema inmobiliario."""
-    if request.method == "POST":
-        current_user.nombre = request.form.get("nombre")
-        current_user.telefono = request.form.get("telefono")
+    """
+    Gestión de la identidad corporativa.
+    Exclusivo para Agentes Inmobiliarios y Administradores.
+    """
+    # BLOQUEO DE SEGURIDAD: Los clientes no tienen perfil corporativo
+    if current_user.rol.lower() not in ['agente', 'admin']:
+        flash('Acceso denegado. Solo el equipo comercial puede gestionar un perfil público.', 'error')
+        return redirect(url_for('citas.mis_visitas'))
 
+    if request.method == 'POST':
+        # 1. Actualizar el teléfono
+        nuevo_telefono = request.form.get('telefono')
+        if nuevo_telefono:
+            current_user.telefono = nuevo_telefono
+            
+        # 2. Procesar la subida de la nueva foto de perfil
+        foto = request.files.get('foto_perfil')
+        if foto and foto.filename != '':
+            nombre_foto = secure_filename(foto.filename)
+            # Guardamos la imagen en la carpeta de uploads del sistema
+            ruta_guardado = os.path.join(current_app.root_path, 'static', 'uploads', nombre_foto)
+            foto.save(ruta_guardado)
+            
+            # Actualizamos el registro de la BD
+            current_user.foto_perfil = nombre_foto
+            
+        # 3. Confirmar transacción
         db.session.commit()
-        flash("¡Perfil actualizado con éxito!", "success")
-        return redirect(url_for("auth.panel"))
-
-    return render_template("users/perfil.html")
+        flash('Perfil corporativo actualizado con éxito.', 'success')
+        return redirect(url_for('auth.perfil'))
+        
+    return render_template('auth/perfil.html')
 
 
 @auth_bp.route("/cerrar-sesion")

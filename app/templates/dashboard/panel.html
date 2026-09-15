@@ -3,14 +3,20 @@
 {% block title %}Panel Ejecutivo - INSICA{% endblock %}
 
 {% block content %}
+<!-- Cambia este bloque en la línea 6 de panel.html -->
 <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
     <div>
-        <h2 class="fw-bold text-primary mb-0">Resumen Operativo</h2>
+        <h2 class="fw-bold text-primary mb-0">{{ titulo_panel }}</h2>
         <p class="text-muted mb-0">Bienvenido al centro de gestión, {{ current_user.nombre }}.</p>
     </div>
-    <a href="{{ url_for('inmuebles.registrar_inmueble') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm">
-        <i class="bi bi-plus-lg me-1"></i> Nuevo Inmueble
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('auth.perfil') }}" class="btn btn-outline-secondary rounded-pill fw-bold shadow-sm">
+            <i class="bi bi-person-badge me-1"></i> Mi Perfil
+        </a>
+        <a href="{{ url_for('inmuebles.registrar_inmueble') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Inmueble
+        </a>
+    </div>
 </div>
 
 <!-- Tarjetas de Métricas (KPIs) -->

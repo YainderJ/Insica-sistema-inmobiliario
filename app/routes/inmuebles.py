@@ -174,3 +174,17 @@ def editar_inmueble(id_inmueble):
 
     # Si es GET, enviamos los datos actuales a la vista
     return render_template('inmuebles/editar.html', inmueble=inmueble)
+
+# ==========================================
+# PÁGINAS INSTITUCIONALES (IDENTIDAD INSICA)
+# ==========================================
+
+@inmuebles_bp.route('/nosotros')
+def nosotros():
+    """Renderiza la página corporativa 'Quiénes Somos'."""
+    return render_template('dashboard/nosotros.html')
+
+@inmuebles_bp.route('/contacto')
+def contacto():
+    """Renderiza la página de información de 'Contacto'."""
+    return render_template('dashboard/contacto.html')
