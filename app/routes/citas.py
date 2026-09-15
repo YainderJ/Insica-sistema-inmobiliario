@@ -71,16 +71,23 @@ def solicitar_agendamiento(inmueble_id):
     return redirect(url_for('citas.mis_visitas'))
 
 # ==========================================
-# PROCESO 3.2: CONSULTAR AGENDA (AGENTE)
+# PROCESO 3.2: CONSULTAR AGENDA (AGENTE / ADMIN)
 # ==========================================
 @citas_bp.route('/agenda')
 @login_required
 def agenda():
     if current_user.rol not in ['Agente', 'Admin']:
-        flash('Acceso denegado. Área exclusiva para Agentes.', 'error')
+        flash('Acceso denegado. Área exclusiva para el equipo comercial.', 'error')
         return redirect(url_for('auth.panel'))
         
-    citas = Cita.query.filter_by(agente_id=current_user.id).order_by(Cita.fecha_hora.asc()).all()
+    # LÓGICA DE CONTROL DE ACCESO (RBAC)
+    if current_user.rol == 'Admin':
+        # El Administrador extrae toda la agenda global de la agencia
+        citas = Cita.query.order_by(Cita.fecha_hora.asc()).all()
+    else:
+        # El Agente solo extrae su propia agenda
+        citas = Cita.query.filter_by(agente_id=current_user.id).order_by(Cita.fecha_hora.asc()).all()
+        
     return render_template('citas/agenda.html', citas=citas)
 
 # ==========================================
@@ -95,7 +102,8 @@ def cambiar_estatus(cita_id, nuevo_estatus):
 
     cita = Cita.query.get_or_404(cita_id)
     
-    if cita.agente_id != current_user.id:
+    # Validación modificada: El Admin tiene permiso de modificar cualquier cita, el Agente solo las suyas
+    if current_user.rol != 'Admin' and cita.agente_id != current_user.id:
         flash('No puedes modificar una cita asignada a otro agente.', 'error')
         return redirect(url_for('citas.agenda'))
 

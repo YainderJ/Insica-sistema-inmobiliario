@@ -48,13 +48,19 @@ def registrar_solicitud(inmueble_id):
 @crm_bp.route('/panel_leads')
 @login_required
 def panel_leads():
-    # Validación: Área exclusiva para Agentes
+    # Validación: Área exclusiva para el equipo corporativo
     if current_user.rol not in ['Agente', 'Admin']:
         flash('Acceso denegado. Área exclusiva para el equipo comercial.', 'error')
         return redirect(url_for('auth.panel'))
         
-    # Extrae el historial de leads desde el Almacén D2 asignados a este agente
-    leads = LeadCRM.query.filter_by(agente_id=current_user.id).order_by(LeadCRM.fecha_registro.desc()).all()
+    # LÓGICA DE CONTROL DE ACCESO (RBAC)
+    if current_user.rol == 'Admin':
+        # El Administrador extrae TODOS los leads del Almacén D2 (Visión Global)
+        leads = LeadCRM.query.order_by(LeadCRM.fecha_registro.desc()).all()
+    else:
+        # El Agente solo extrae los leads asignados a sus propiedades
+        leads = LeadCRM.query.filter_by(agente_id=current_user.id).order_by(LeadCRM.fecha_registro.desc()).all()
+        
     return render_template('crm/panel_leads.html', leads=leads)
 
 # ==========================================
@@ -68,12 +74,12 @@ def gestionar_lead(lead_id):
 
     lead = LeadCRM.query.get_or_404(lead_id)
     
-    # Seguridad: Evitar que un agente modifique los leads de otro
-    if lead.agente_id != current_user.id:
+    # Seguridad modificada: El Admin puede gestionar cualquier lead, el Agente solo los suyos
+    if current_user.rol != 'Admin' and lead.agente_id != current_user.id:
         flash('No tienes autorización para gestionar este contacto.', 'error')
         return redirect(url_for('crm.panel_leads'))
 
-    # Captura de datos del formulario del agente
+    # Captura de datos del formulario
     nuevo_estatus = request.form.get('estatus')
     respuesta = request.form.get('respuesta_agente')
 

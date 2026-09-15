@@ -5,9 +5,25 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
     <div>
-        <h2 class="fw-bold text-primary mb-0">Catálogo de Inmuebles</h2>
-        <p class="text-muted mb-0">Encuentra la propiedad ideal según tus necesidades.</p>
+        <h2 class="fw-bold text-primary mb-1"><i class="bi bi-houses me-2"></i>Catálogo de Inmuebles</h2>
+        <p class="text-muted mb-0">
+            {% if current_user.is_authenticated and current_user.rol == 'Admin' %}
+                Gestión global del inventario y supervisión del catálogo histórico de la agencia.
+            {% elif current_user.is_authenticated and current_user.rol == 'Agente' %}
+                Gestiona tus propiedades captadas y explora el inventario disponible.
+            {% else %}
+                Encuentra la propiedad ideal según tus necesidades.
+            {% endif %}
+        </p>
     </div>
+    <!-- Botón de nueva captación visible solo para el equipo corporativo -->
+    {% if current_user.is_authenticated and current_user.rol in ['Admin', 'Agente'] %}
+    <div>
+        <a href="{{ url_for('inmuebles.registrar_inmueble') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nueva Propiedad
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <div class="row g-4 mb-5">
@@ -16,12 +32,12 @@
         <!-- Efecto de opacidad si la propiedad ya está vendida -->
         <div class="card h-100 shadow-sm border-0 rounded-4 hover-card {% if propiedad.estatus == 'Vendido' %}opacity-75{% endif %}">
             
-            <!-- ETIQUETA VISUAL DE ESTATUS PARA EL AGENTE -->
+            <!-- ETIQUETA VISUAL DE ESTATUS -->
             <div class="position-absolute top-0 end-0 m-3 z-1">
                 {% if propiedad.estatus == 'Disponible' %}
-                    <span class="badge bg-success shadow">Disponible</span>
+                    <span class="badge bg-success shadow px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i> Disponible</span>
                 {% else %}
-                    <span class="badge bg-danger shadow">Vendido</span>
+                    <span class="badge bg-danger shadow px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i> Vendido</span>
                 {% endif %}
             </div>
 
@@ -51,36 +67,58 @@
             {% else %}
                 <!-- Fallback Seguro -->
                 <div class="card-img-top rounded-top-4 bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
-                    <img src="{{ url_for('static', filename='favicon.png') }}" class="img-fluid opacity-25" alt="Sin foto" style="max-height: 100px; object-fit: contain;">
+                    <i class="bi bi-image text-muted opacity-25 display-1"></i>
                 </div>
             {% endif %}
             
-            <div class="card-body p-4">
-                <span class="badge bg-success mb-2">{{ propiedad.tipo_operacion }}</span>
-                <span class="badge bg-info mb-2">{{ propiedad.tipo_inmueble }}</span>
-                <h4 class="fw-bold text-dark mt-2">${{ "{:,.2f}".format(propiedad.precio) }}</h4>
-                <p class="text-muted small mb-3"><i class="bi bi-geo-alt text-danger"></i> {{ propiedad.direccion }}</p>
-                <p class="text-truncate text-muted">{{ propiedad.descripcion_general }}</p>
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="mb-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle me-1">{{ propiedad.tipo_operacion }}</span>
+                    <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle">{{ propiedad.tipo_inmueble }}</span>
+                </div>
                 
-                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=propiedad.id) }}" class="btn btn-outline-primary w-100 rounded-pill mt-2">
-                   Ver Detalles
-                </a>
+                <h4 class="fw-bold text-dark mt-2 mb-1">${{ "{:,.2f}".format(propiedad.precio) }}</h4>
+                <p class="text-muted small mb-3"><i class="bi bi-geo-alt text-danger me-1"></i> {{ propiedad.direccion }}</p>
+                <p class="text-truncate text-muted small mb-3">{{ propiedad.descripcion_general }}</p>
                 
-                <!-- GESTIÓN: BOTÓN ELIMINAR -->
-                {% if current_user.id == propiedad.agente_id %}
-                <form action="{{ url_for('inmuebles.eliminar_inmueble', id_inmueble=propiedad.id) }}" method="POST" class="mt-2" onsubmit="return confirm('¿Estás seguro de que deseas borrar esta propiedad permanentemente?');">
-                    <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">
-                        <i class="bi bi-trash"></i> Eliminar Inmueble
-                    </button>
-                </form>
+                <!-- Etiqueta exclusiva para que el Administrador sepa quién captó la propiedad -->
+                {% if current_user.is_authenticated and current_user.rol == 'Admin' %}
+                    <div class="mb-3 p-2 bg-light rounded-3 small border">
+                        <i class="bi bi-person-badge text-primary me-1"></i> 
+                        <span class="fw-bold text-dark">Agente ID:</span> {{ propiedad.agente_id }}
+                    </div>
                 {% endif %}
+                
+                <div class="mt-auto">
+                    <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=propiedad.id) }}" class="btn btn-outline-primary w-100 rounded-pill mb-2 fw-bold">
+                       Ver Ficha Técnica
+                    </a>
+                    
+                    <!-- GESTIÓN CORPORATIVA: BOTONES EDITAR Y ELIMINAR -->
+                    <!-- Se muestran si el usuario es Administrador global, o si es el Agente dueño de la propiedad -->
+                    {% if current_user.is_authenticated and (current_user.rol == 'Admin' or current_user.id == propiedad.agente_id) %}
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('inmuebles.editar_inmueble', id_inmueble=propiedad.id) }}" class="btn btn-sm btn-light border w-100 rounded-pill text-dark fw-medium shadow-sm">
+                            <i class="bi bi-pencil-square me-1"></i> Editar
+                        </a>
+                        <form action="{{ url_for('inmuebles.eliminar_inmueble', id_inmueble=propiedad.id) }}" method="POST" class="w-100" onsubmit="return confirm('ATENCIÓN: ¿Estás seguro de que deseas borrar esta propiedad permanentemente del Almacén D1? Esta acción no se puede deshacer.');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-medium shadow-sm">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
     {% else %}
     <div class="col-12 text-center py-5">
-        <i class="bi bi-houses text-muted display-1 opacity-25"></i>
-        <h4 class="text-muted mt-3">No hay inmuebles disponibles</h4>
+        <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 100px; height: 100px;">
+            <i class="bi bi-building-x text-muted fs-1"></i>
+        </div>
+        <h4 class="fw-bold text-dark mt-3">Inventario Vacío</h4>
+        <p class="text-muted">No se encontraron propiedades que coincidan con tu búsqueda en el catálogo.</p>
     </div>
     {% endfor %}
 </div>

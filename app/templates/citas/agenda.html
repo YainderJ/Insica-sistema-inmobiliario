@@ -4,11 +4,17 @@
 
 {% block content %}
 <div class="container mt-4 mb-5">
-    <!-- Cabecera -->
+    <!-- Cabecera Dinámica -->
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
             <h2 class="fw-bold text-primary mb-1"><i class="bi bi-calendar-week me-2"></i>Agenda de Citas</h2>
-            <p class="text-muted mb-0">Gestiona las solicitudes de visitas a tus propiedades captadas.</p>
+            <p class="text-muted mb-0">
+                {% if current_user.rol == 'Admin' %}
+                    Supervisa todas las solicitudes de visitas programadas a nivel global en la agencia.
+                {% else %}
+                    Gestiona las solicitudes de visitas a tus propiedades captadas.
+                {% endif %}
+            </p>
         </div>
     </div>
 
@@ -22,6 +28,10 @@
                             <th class="ps-4 py-3">Fecha y Hora</th>
                             <th class="py-3">Cliente</th>
                             <th class="py-3">Propiedad</th>
+                            <!-- Columna exclusiva para la gerencia -->
+                            {% if current_user.rol == 'Admin' %}
+                                <th class="py-3">Agente Asignado</th>
+                            {% endif %}
                             <th class="py-3">Contacto</th>
                             <th class="py-3">Estatus</th>
                             <th class="pe-4 py-3 text-center">Acciones</th>
@@ -47,6 +57,15 @@
                                         <i class="bi bi-geo-alt me-1"></i>{{ cita.inmueble.direccion }}
                                     </small>
                                 </td>
+                                <!-- Renderizado del nombre del Agente para el Admin -->
+                                {% if current_user.rol == 'Admin' %}
+                                <td class="py-3">
+                                    <div class="text-dark fw-medium">
+                                        <i class="bi bi-person-badge text-primary me-1"></i> 
+                                        {{ cita.agente.nombre if cita.agente else 'No asignado' }}
+                                    </div>
+                                </td>
+                                {% endif %}
                                 <td class="py-3">
                                     <div class="text-dark fw-semibold mb-1">
                                         <i class="bi bi-telephone text-success me-1"></i> {{ cita.telefono_contacto or 'No provisto' }}
@@ -66,7 +85,6 @@
                                 </td>
                                 <td class="pe-4 py-3 text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <!-- Proceso 3.3: Gestionar Cita -->
                                         {% if cita.estatus == 'Pendiente' or cita.estatus == 'Reprogramada' %}
                                             <form action="{{ url_for('citas.cambiar_estatus', cita_id=cita.id, nuevo_estatus='Confirmada') }}" method="POST" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-success rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="Confirmar Cita">
@@ -87,14 +105,20 @@
                             </tr>
                             {% endfor %}
                         {% else %}
-                            <!-- Estado Vacío Armonizado -->
+                            <!-- Estado Vacío Dinámico -->
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <!-- Controlamos el colspan para que la tabla no se rompa visualmente -->
+                                <td colspan="{{ '7' if current_user.rol == 'Admin' else '6' }}" class="text-center py-5">
                                     <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
                                         <i class="bi bi-calendar2-x text-muted fs-1"></i>
                                     </div>
-                                    <h5 class="fw-bold text-dark">No tienes citas programadas.</h5>
-                                    <p class="text-muted small mb-0">Las solicitudes de visitas a tus propiedades aparecerán aquí automáticamente.</p>
+                                    {% if current_user.rol == 'Admin' %}
+                                        <h5 class="fw-bold text-dark">Agenda global vacía</h5>
+                                        <p class="text-muted small mb-0">No hay solicitudes de visitas registradas actualmente en la agencia.</p>
+                                    {% else %}
+                                        <h5 class="fw-bold text-dark">No tienes citas programadas</h5>
+                                        <p class="text-muted small mb-0">Las solicitudes de visitas a tus propiedades aparecerán aquí automáticamente.</p>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endif %}

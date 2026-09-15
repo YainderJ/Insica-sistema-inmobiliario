@@ -112,9 +112,6 @@
                         <!-- Variable dinámica con el mensaje corporativo para WhatsApp -->
 {% set mensaje_ws = "Hola, me comunico desde la plataforma INSICA. Estoy interesado en recibir más información sobre la propiedad: " ~ inmueble.tipo_inmueble ~ " en " ~ inmueble.tipo_operacion ~ " ubicada en " ~ inmueble.direccion ~ " (Ref. ID: " ~ inmueble.id ~ "). ¿Me podría brindar más detalles?" %}
 
-<div class="text-center text-muted mb-3">
-    <span class="bg-light px-2">O</span>
-</div>
 
 <a href="https://wa.me/{{ agente.telefono|default('584246183548')|replace('+', '')|replace(' ', '') }}?text={{ mensaje_ws|urlencode }}" target="_blank" class="btn btn-success w-100 py-2 fw-bold rounded-pill">
     <i class="bi bi-whatsapp me-2"></i> Conversar por WhatsApp

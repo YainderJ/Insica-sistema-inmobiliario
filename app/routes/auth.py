@@ -11,40 +11,42 @@ from app.models.venta import Venta
 import os
 from werkzeug.utils import secure_filename
 from flask import current_app
+import random
 
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/registro", methods=["GET", "POST"])
 def registro():
+    # Evita que un usuario ya logueado intente registrarse de nuevo
+    if current_user.is_authenticated:
+        return redirect(url_for('inmuebles.inicio'))
+
     if request.method == "POST":
         nombre = request.form.get("nombre")
         email = request.form.get("email")
         password = request.form.get("password")
-        rol = request.form.get("rol")
 
-        if not nombre or not email or not password or not rol:
-            flash("Datos incompletos", "error")
+        # Validación estricta: Solo verificamos los datos básicos
+        if not nombre or not email or not password:
+            flash("Datos incompletos. Todos los campos son obligatorios.", "error")
             return redirect(url_for("auth.registro"))
 
-        # Dominio inmobiliario estricto
-        roles_validos = ["Cliente", "Agente", "Admin"]
-        if rol not in roles_validos:
-            flash("Rol inválido", "error")
-            return redirect(url_for("auth.registro"))
-
+        # Verificación de unicidad del correo
         usuario_existente = Usuario.query.filter_by(email=email).first()
         if usuario_existente:
-            flash("El correo electrónico ya está registrado", "error")
+            flash("El correo electrónico ya está registrado.", "error")
             return redirect(url_for("auth.registro"))
 
         password_hash = generate_password_hash(password)
 
+        # BLINDAJE ARQUITECTÓNICO: Se fuerza el rol 'Cliente' directamente en el servidor.
+        # Se ignora por completo cualquier intento de inyectar un rol desde el Frontend.
         usuario = Usuario(
             nombre=nombre,
             email=email,
             password_hash=password_hash,
-            rol=rol
+            rol="Cliente" 
         )
 
         db.session.add(usuario)
@@ -173,3 +175,50 @@ def cerrar_sesion():
     logout_user()
     flash("Sesión cerrada correctamente", "info")
     return redirect(url_for("auth.iniciar_sesion"))
+
+# ==========================================
+# MÓDULO DE ADMINISTRACIÓN (RBAC)
+# ==========================================
+
+@auth_bp.route('/admin/agentes', methods=['GET', 'POST'])
+@login_required
+def gestion_agentes():
+    """Panel exclusivo del Administrador para dar de alta al equipo comercial."""
+    
+    # Blindaje de seguridad: Solo el Admin puede entrar aquí
+    if current_user.rol != 'Admin':
+        flash('Acceso denegado. Área exclusiva de administración corporativa.', 'error')
+        return redirect(url_for('inmuebles.inicio'))
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        email = request.form.get('email')
+        telefono = request.form.get('telefono')
+
+        # Verificar si el correo ya existe en el sistema
+        if Usuario.query.filter_by(email=email).first():
+            flash('Error: El correo ingresado ya pertenece a un usuario.', 'error')
+            return redirect(url_for('auth.gestion_agentes'))
+
+        # Generar contraseña temporal segura (Ej. Insica4829*)
+        password_temporal = f"Insica{random.randint(1000, 9999)}*"
+        password_hash = generate_password_hash(password_temporal)
+
+        nuevo_agente = Usuario(
+            nombre=nombre,
+            email=email,
+            telefono=telefono,
+            password_hash=password_hash,
+            rol='Agente'
+        )
+
+        db.session.add(nuevo_agente)
+        db.session.commit()
+
+        # El mensaje flash entregará la clave para que el Admin se la pase al empleado
+        flash(f'Agente creado con éxito. Entregue esta contraseña temporal al empleado: {password_temporal}', 'success')
+        return redirect(url_for('auth.gestion_agentes'))
+
+    # Petición GET: Extraer solo a los Agentes Inmobiliarios para la tabla
+    agentes = Usuario.query.filter_by(rol='Agente').all()
+    return render_template('admin/agentes.html', agentes=agentes)

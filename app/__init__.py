@@ -78,9 +78,6 @@ def create_app():
 
     #app.register_blueprint(pagos_bp)
 
-    from app.routes.analisis import analisis_bp
-
-    app.register_blueprint(analisis_bp)
 
     #from app.routes.shalas import shalas_bp
 

@@ -4,11 +4,17 @@
 
 {% block content %}
 <div class="container mt-4 mb-5">
-    <!-- Cabecera -->
+    <!-- Cabecera Dinámica -->
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
             <h2 class="fw-bold text-primary mb-1"><i class="bi bi-funnel-fill me-2"></i>Panel CRM: Gestión de Leads</h2>
-            <p class="text-muted mb-0">Administra las consultas de tus clientes potenciales y optimiza tus cierres de ventas.</p>
+            <p class="text-muted mb-0">
+                {% if current_user.rol == 'Admin' %}
+                    Supervisa todas las consultas y clientes potenciales a nivel global en la agencia.
+                {% else %}
+                    Administra las consultas de tus clientes potenciales y optimiza tus cierres de ventas.
+                {% endif %}
+            </p>
         </div>
     </div>
 
@@ -22,8 +28,12 @@
                             <th class="ps-4 py-3">Fecha</th>
                             <th class="py-3">Cliente Prospecto</th>
                             <th class="py-3">Inmueble de Interés</th>
-                            <th class="py-3">Mensaje Original</th>
-                            <th class="py-3">Estatus</th>
+                            <!-- Columna exclusiva para la gerencia -->
+                            {% if current_user.rol == 'Admin' %}
+                                <th class="py-3">Agente Asignado</th>
+                            {% endif %}
+                            <th class="py-3 text-center">Mensaje Original</th>
+                            <th class="py-3 text-center">Estatus</th>
                             <th class="pe-4 py-3">Gestión Comercial</th>
                         </tr>
                     </thead>
@@ -44,12 +54,23 @@
                                 </a><br>
                                 <small class="text-muted text-truncate d-inline-block" style="max-width: 150px;"><i class="bi bi-geo-alt me-1"></i>{{ lead.inmueble.direccion }}</small>
                             </td>
+                            
+                            <!-- Renderizado del nombre del Agente para el Admin -->
+                            {% if current_user.rol == 'Admin' %}
                             <td class="py-3">
+                                <div class="text-dark fw-medium">
+                                    <i class="bi bi-person-badge text-primary me-1"></i> 
+                                    {{ lead.agente.nombre if lead.agente else 'No asignado' }}
+                                </div>
+                            </td>
+                            {% endif %}
+
+                            <td class="py-3 text-center">
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#modalMensaje{{ lead.id }}">
                                     <i class="bi bi-chat-text me-1"></i> Leer
                                 </button>
                             </td>
-                            <td class="py-3">
+                            <td class="py-3 text-center">
                                 {% if lead.estatus == 'Nuevo' %}
                                     <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">Nuevo</span>
                                 {% elif lead.estatus == 'En Negociación' %}
@@ -103,14 +124,20 @@
                             </div>
                         </div>
                         {% else %}
-                        <!-- Estado Vacío Armonizado -->
+                        <!-- Estado Vacío Dinámico -->
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <!-- Ajuste dinámico del colspan -->
+                            <td colspan="{{ '7' if current_user.rol == 'Admin' else '6' }}" class="text-center py-5">
                                 <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
                                     <i class="bi bi-inbox text-muted fs-1"></i>
                                 </div>
-                                <h5 class="fw-bold text-dark">Bandeja de Leads Vacía</h5>
-                                <p class="text-muted small mb-0">Aún no has recibido consultas de clientes potenciales.</p>
+                                {% if current_user.rol == 'Admin' %}
+                                    <h5 class="fw-bold text-dark">Bandeja Global Vacía</h5>
+                                    <p class="text-muted small mb-0">No hay consultas de clientes potenciales registradas actualmente en la agencia.</p>
+                                {% else %}
+                                    <h5 class="fw-bold text-dark">Bandeja de Leads Vacía</h5>
+                                    <p class="text-muted small mb-0">Aún no has recibido consultas de clientes potenciales.</p>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

@@ -29,12 +29,7 @@
                     </div>
 
                     <div class="mb-3">
-    <label for="rol" class="form-label">¿Qué rol tendrás?</label>
-    <select class="form-select" id="rol" name="rol" required>
-        <option value="" selected disabled>Selecciona una opción...</option>
-        <option value="Cliente">Cliente</option>
-        <option value="Agente">Agente Inmobiliario</option>
-    </select>
+    
 </div>
                             
                             {% if current_user.is_authenticated and current_user.rol == "ADMIN" %}

@@ -1,13 +1,22 @@
 {% extends "base/base.html" %}
 
-{% block title %}Mis Ventas - INSICA{% endblock %}
+{% block title %}
+    {% if current_user.rol == 'Admin' %}Ventas Globales{% else %}Mis Ventas{% endif %} - INSICA
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4 mb-5">
-    <!-- Cabecera -->
+    <!-- Cabecera Dinámica según el Rol -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-primary mb-1"><i class="bi bi-graph-up-arrow me-2"></i>Reporte Financiero: Mis Ventas</h2>
+            <h2 class="fw-bold text-primary mb-1">
+                <i class="bi bi-graph-up-arrow me-2"></i>
+                {% if current_user.rol == 'Admin' %}
+                    Reporte Financiero Global de la Agencia
+                {% else %}
+                    Reporte Financiero: Mis Ventas
+                {% endif %}
+            </h2>
             <p class="text-muted mb-0">Métricas de rendimiento y comisiones acumuladas.</p>
         </div>
     </div>
@@ -21,7 +30,13 @@
                     <i class="bi bi-cash-stack fs-2 opacity-50"></i>
                 </div>
                 <h2 class="fw-bold display-6 mb-0">${{ "{:,.2f}".format(volumen_total) }}</h2>
-                <p class="small text-white-50 mb-0 mt-2">Total de inmuebles vendidos acumulados.</p>
+                <p class="small text-white-50 mb-0 mt-2">
+                    {% if current_user.rol == 'Admin' %}
+                        Total histórico de propiedades vendidas por la agencia.
+                    {% else %}
+                        Total de inmuebles vendidos acumulados.
+                    {% endif %}
+                </p>
             </div>
         </div>
         
@@ -47,6 +62,9 @@
                         <tr>
                             <th class="ps-4 py-3">Fecha</th>
                             <th class="py-3">Propiedad</th>
+                            {% if current_user.rol == 'Admin' %}
+                                <th class="py-3">Agente Comercial</th>
+                            {% endif %}
                             <th class="py-3">Precio de Cierre</th>
                             <th class="py-3 text-center">% Comisión</th>
                             <th class="pe-4 py-3 text-end">Honorarios</th>
@@ -64,7 +82,11 @@
                                     <span class="text-muted fst-italic">Propiedad no vinculada</span>
                                 {% endif %}
                             </td>
-                            <!-- Consumiendo los atributos exactos de tu modelo venta.py -->
+                            {% if current_user.rol == 'Admin' %}
+                                <td class="py-3 text-dark fw-medium">
+                                    <i class="bi bi-person-badge text-primary me-1"></i> {{ venta.agente.nombre if venta.agente else 'Desconocido' }}
+                                </td>
+                            {% endif %}
                             <td class="py-3 fw-bold text-dark">${{ "{:,.2f}".format(venta.monto_final or 0.0) }}</td>
                             <td class="py-3 text-center">
                                 <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">{{ venta.porcentaje_comision }}%</span>
@@ -72,14 +94,20 @@
                             <td class="pe-4 py-3 text-success fw-bold text-end fs-5">${{ "{:,.2f}".format(venta.comision_agente or 0.0) }}</td>
                         </tr>
                         {% else %}
-                        <!-- Estado Vacío Armonizado -->
+                        <!-- Estado Vacío Armonizado Dinámicamente -->
                         <tr>
-                            <td colspan="5" class="text-center py-5">
+                            <!-- Ajustamos el colspan dependiendo del rol para que la tabla no se deforme -->
+                            <td colspan="{{ '6' if current_user.rol == 'Admin' else '5' }}" class="text-center py-5">
                                 <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
                                     <i class="bi bi-piggy-bank text-muted fs-1"></i>
                                 </div>
-                                <h5 class="fw-bold text-dark">Sin registros de ventas</h5>
-                                <p class="text-muted small mb-0">Aún no has formalizado cierres comerciales en el sistema.</p>
+                                {% if current_user.rol == 'Admin' %}
+                                    <h5 class="fw-bold text-dark">Sin registros globales de ventas</h5>
+                                    <p class="text-muted small mb-0">La agencia aún no ha formalizado operaciones comerciales en el sistema.</p>
+                                {% else %}
+                                    <h5 class="fw-bold text-dark">Sin registros de ventas</h5>
+                                    <p class="text-muted small mb-0">Aún no has formalizado cierres comerciales en el sistema.</p>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
