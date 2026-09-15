@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from app.models.cita import Cita
 from app.models.inmueble import Inmueble
+from app.models.lead_crm import LeadCRM
 from app import db
 
 citas_bp = Blueprint('citas', __name__, url_prefix='/citas')
@@ -13,12 +14,21 @@ citas_bp = Blueprint('citas', __name__, url_prefix='/citas')
 @citas_bp.route('/mis_visitas')
 @login_required
 def mis_visitas():
-    # El Cliente es el único que accede a este historial
-    if current_user.rol != 'Cliente':
+    """
+    Panel Privado del Cliente.
+    Extrae el historial de citas (Almacén D3) y consultas (Almacén D2) del usuario actual.
+    """
+    # Validamos que el rol corresponda a un Cliente
+    if current_user.rol.lower() in ['agente', 'admin']:
         return redirect(url_for('auth.panel'))
-        
-    citas = Cita.query.filter_by(cliente_id=current_user.id).order_by(Cita.fecha_hora.desc()).all()
-    return render_template('citas/mis_visitas.html', citas=citas)
+
+    # Extraer las citas agendadas por este cliente (Almacén D3)
+    citas_cliente = Cita.query.filter_by(cliente_id=current_user.id).order_by(Cita.id.desc()).all()
+    
+    # Extraer las consultas o solicitudes de información enviadas (Almacén D2)
+    consultas_cliente = LeadCRM.query.filter_by(cliente_id=current_user.id).order_by(LeadCRM.id.desc()).all()
+
+    return render_template('citas/mis_visitas.html', citas=citas_cliente, consultas=consultas_cliente)
 
 # ==========================================
 # PROCESO 3.1: SOLICITAR AGENDAMIENTO

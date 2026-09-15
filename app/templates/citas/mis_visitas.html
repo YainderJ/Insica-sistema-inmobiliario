@@ -1,70 +1,129 @@
-{% extends "base/base.html" %}
+{% extends 'base/base.html' %}
 
-{% block title %}Mis Visitas - INSICA{% endblock %}
+{% block title %}Mi Área Personal - INSICA{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-calendar-check text-primary"></i> Mis Visitas Programadas</h2>
+<!-- Cabecera del Perfil -->
+<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+    <div>
+        <h2 class="fw-bold text-primary mb-1">Mi Perfil Inmobiliario</h2>
+        <p class="text-muted mb-0">Bienvenido de nuevo, <strong>{{ current_user.nombre }}</strong>. Aquí tienes el resumen de tu actividad.</p>
+    </div>
+    <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm px-4">
+        <i class="bi bi-search me-2"></i> Explorar Catálogo
+    </a>
+</div>
+
+<!-- Tarjetas de Resumen -->
+<div class="row g-4 mb-4">
+    <!-- Resumen de Citas -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-white" style="background: linear-gradient(135deg, #0dcaf0, #0aa2c0);">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 text-white-50">VISITAS AGENDADAS</h6>
+                    <i class="bi bi-calendar-event fs-2 opacity-50"></i>
+                </div>
+                <h2 class="fw-bold mb-0">{{ citas|length }} Propiedades</h2>
+                <p class="small text-white-50 mb-0 mt-2">En proceso de visita o inspección</p>
+            </div>
+        </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white pb-0">
-            <p class="text-muted">Aquí puedes consultar el estado de tus solicitudes de agendamiento con nuestros Agentes Inmobiliarios.</p>
+    <!-- Resumen de Consultas -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-white" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7);">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 text-white-50">CONSULTAS ENVIADAS</h6>
+                    <i class="bi bi-envelope-paper fs-2 opacity-50"></i>
+                </div>
+                <h2 class="fw-bold mb-0">{{ consultas|length }} Mensajes</h2>
+                <p class="small text-white-50 mb-0 mt-2">Solicitudes de información a los agentes</p>
+            </div>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Fecha y Hora Sugerida</th>
-                            <th>Propiedad de Interés</th>
-                            <th>Agente Asignado</th>
-                            <th>Teléfono de Contacto</th>
-                            <th>Estatus</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    </div>
+</div>
+
+<!-- Listados de Historial Detallado -->
+<div class="row g-4 mb-5">
+    
+    <!-- SECCIÓN 1: MIS CITAS (Conexión con Cita.fecha_hora) -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex align-items-center">
+                <div class="bg-info bg-opacity-10 text-info rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-calendar-check fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-0">Mi Agenda de Visitas</h5>
+            </div>
+            <div class="card-body p-4 pt-2">
+                {% if citas %}
+                    <div class="list-group list-group-flush mt-2">
                         {% for cita in citas %}
-                        <tr>
-                            <td>
-                                <span class="fw-bold text-dark">{{ cita.fecha_hora.strftime('%d/%m/%Y') }}</span><br>
-                                <small class="text-muted">{{ cita.fecha_hora.strftime('%I:%M %p') }}</small>
-                            </td>
-                            <td>
-                                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=cita.inmueble.id) }}" class="text-decoration-none fw-bold text-primary">
-                                    {{ cita.inmueble.tipo_inmueble }}
-                                </a><br>
-                                <small class="text-muted">{{ cita.inmueble.direccion }}</small>
-                            </td>
-                            <td>
-                                <i class="fas fa-user-tie text-muted me-1"></i> {{ cita.agente.nombre }} {{ cita.agente.apellido }}
-                            </td>
-                            <td>{{ cita.telefono_contacto }}</td>
-                            <td>
+                        <div class="list-group-item px-0 py-3 border-bottom border-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <!-- Extraemos solo la FECHA del objeto fecha_hora -->
+                                <span class="fw-bold text-dark fs-6">{{ cita.fecha_hora.strftime('%d/%m/%Y') if cita.fecha_hora else 'Fecha por definir' }}</span>
                                 {% if cita.estatus == 'Pendiente' %}
-                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente</span>
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Pendiente</span>
                                 {% elif cita.estatus == 'Confirmada' %}
-                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmada</span>
-                                {% elif cita.estatus == 'Reprogramada' %}
-                                    <span class="badge bg-info text-dark"><i class="fas fa-calendar-alt"></i> Reprogramada</span>
+                                    <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">Confirmada</span>
                                 {% else %}
-                                    <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelada</span>
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill shadow-sm">{{ cita.estatus }}</span>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-calendar-times fs-1 mb-3 d-block"></i>
-                                <h5>No tienes visitas programadas</h5>
-                                <p>Explora nuestro catálogo y solicita una cita para visitar la propiedad de tus sueños.</p>
-                                <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-primary rounded-pill mt-2">Ir al Catálogo</a>
-                            </td>
-                        </tr>
+                            </div>
+                            <div class="d-flex flex-column gap-1">
+                                <!-- Extraemos solo la HORA del objeto fecha_hora -->
+                                <span class="small text-muted"><i class="bi bi-clock text-primary me-2"></i>Hora: <strong>{{ cita.fecha_hora.strftime('%I:%M %p') if cita.fecha_hora else 'Por definir' }}</strong></span>
+                                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=cita.inmueble_id) }}" class="small text-decoration-none fw-semibold">
+                                    <i class="bi bi-house-door text-primary me-2"></i>Ver propiedad solicitada
+                                </a>
+                            </div>
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <p class="text-muted small mb-0">Aún no has solicitado visitar ninguna propiedad.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: MIS CONSULTAS (Conexión con LeadCRM.mensaje_cliente) -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="bi bi-send fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-0">Historial de Consultas</h5>
+            </div>
+            <div class="card-body p-4 pt-2">
+                {% if consultas %}
+                    <div class="list-group list-group-flush mt-2">
+                        {% for consulta in consultas %}
+                        <div class="list-group-item px-0 py-3 border-bottom border-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=consulta.inmueble_id) }}" class="fw-bold text-primary text-decoration-none fs-6 text-truncate" style="max-width: 80%;">
+                                    Consultaste sobre esta propiedad <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                </a>
+                                <span class="small text-muted"><i class="bi bi-check2-all text-success me-1"></i>Enviado</span>
+                            </div>
+                            <div class="bg-light p-3 rounded-3 mt-2">
+                                <!-- Renderizamos el atributo correcto: mensaje_cliente -->
+                                <p class="mb-0 small text-muted fst-italic">"{{ consulta.mensaje_cliente or 'Mensaje no disponible.' }}"</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <p class="text-muted small mb-0">No has enviado solicitudes de información recientemente.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

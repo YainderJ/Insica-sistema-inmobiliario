@@ -8,20 +8,48 @@ from app.models.usuario import Usuario
 
 inmuebles_bp = Blueprint('inmuebles', __name__, url_prefix='/inmuebles')
 
+@inmuebles_bp.route('/')
+def inicio():
+    """
+    Ruta raíz (Landing Page pública). 
+    Paso 2: Extrae inmuebles disponibles y el directorio de agentes.
+    """
+    # Extraer los últimos 6 inmuebles disponibles para el escaparate central
+    propiedades_destacadas = Inmueble.query.filter_by(estatus='Disponible').order_by(Inmueble.id.desc()).limit(6).all()
+    
+    # Extraer los usuarios con rol de Agente para la columna derecha
+    agentes_directorio = Usuario.query.filter(Usuario.rol.ilike('%agente%')).all()
+    
+    return render_template('dashboard/inicio.html', propiedades=propiedades_destacadas, agentes=agentes_directorio)
+
 @inmuebles_bp.route('/catalogo')
 def catalogo():
     """
     Proceso 1.3: Filtrar y Consultar.
-    Renderiza el catálogo aplicando reglas de visibilidad flexibles según el rol.
+    Renderiza el catálogo aplicando reglas de visibilidad según el rol
+    e intercepta los filtros de búsqueda con insensibilidad a mayúsculas/minúsculas.
     """
+    # 1. Capturar los parámetros de búsqueda enviados por el método GET
+    filtro_operacion = request.args.get('tipo_operacion')
+    filtro_inmueble = request.args.get('tipo_inmueble')
+
+    # 2. Establecer la consulta base según los permisos del usuario
     if current_user.is_authenticated and current_user.rol and ('agente' in current_user.rol.lower() or 'admin' in current_user.rol.lower()):
-        # Visibilidad Total para el equipo comercial
-        lista_resultados = Inmueble.query.order_by(Inmueble.id.desc()).all()
+        query_base = Inmueble.query
     else:
-        # Visibilidad Restringida para Clientes (Solo Disponibles)
-        lista_resultados = Inmueble.query.filter_by(estatus='Disponible').order_by(Inmueble.id.desc()).all()
+        query_base = Inmueble.query.filter_by(estatus='Disponible')
+
+    # 3. Aplicar filtros dinámicos usando ilike() para ignorar mayúsculas/minúsculas
+    if filtro_operacion:
+        # Los símbolos % aseguran que encuentre la palabra aunque tenga espacios extra
+        query_base = query_base.filter(Inmueble.tipo_operacion.ilike(f"%{filtro_operacion}%"))
     
-    # CORRECCIÓN CLAVE: Pasamos la variable como 'propiedades' para que coincida con tu HTML
+    if filtro_inmueble:
+        query_base = query_base.filter(Inmueble.tipo_inmueble.ilike(f"%{filtro_inmueble}%"))
+
+    # 4. Ejecutar la consulta final
+    lista_resultados = query_base.order_by(Inmueble.id.desc()).all()
+    
     return render_template('inmuebles/catalogo.html', propiedades=lista_resultados)
 
 @inmuebles_bp.route('/registrar', methods=['GET', 'POST'])

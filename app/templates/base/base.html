@@ -20,65 +20,65 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3 mb-4">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="{{ url_for('auth.panel') }}">
-            <i class="fas fa-building text-primary"></i> INSICA
+        <!-- ZONA IZQUIERDA: Identidad Corporativa -->
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('inmuebles.inicio') }}">
+            <img src="{{ url_for('static', filename='favicon.png') }}" alt="Logo INSICA" height="40" class="me-2">
+            <span class="fw-bold text-primary fs-4">INSICA</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal" aria-controls="navbarPrincipal" aria-expanded="false" aria-label="Alternar navegación">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                {% if current_user.is_authenticated %}
-                    
-                    <!-- NAVEGACIÓN CONDICIONAL: ROL CLIENTE -->
-                    {% if current_user.rol == 'Cliente' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('inmuebles.catalogo') }}">Catálogo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('citas.mis_visitas') }}">Mis Visitas</a>
-                        </li>
-                    
-                    <!-- NAVEGACIÓN CONDICIONAL: ROL AGENTE -->
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('inmuebles.catalogo') }}">Catálogo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('inmuebles.registrar_inmueble') }}">Captar Inmueble</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('crm.panel_leads') }}">Leads CRM</a>
-                        </li>
-                        <li class="nav-item">
-                            
-                        <li class="nav-item">
-        <a class="nav-link text-primary fw-bold" href="{{ url_for('citas.agenda') }}">
-            <i class="bi bi-calendar-check"></i> Mi Agenda
-        </a>
-    </li>
-                            <!-- AQUÍ SE CORRIGE EL ERROR DEL BUILDERROR -->
-                            <a class="nav-link" href="{{ url_for('ventas.mis_ventas') }}">Mis Ventas</a>
-                        </li>
-                    {% endif %}
-                    
-                {% endif %}
+        
+        <div class="collapse navbar-collapse" id="navbarPrincipal">
+            <!-- ENLACES PÚBLICOS (Siempre visibles) -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold text-dark hover-primary" href="{{ url_for('inmuebles.inicio') }}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold text-dark hover-primary" href="{{ url_for('inmuebles.catalogo') }}">Inmuebles</a>
+                </li>
             </ul>
-            <ul class="navbar-nav ms-auto">
+
+            <!-- ZONA DERECHA: Lógica Dinámica de Sesión (MVC) -->
+            <ul class="navbar-nav ms-auto align-items-center">
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <span class="nav-link text-white">
-                            <i class="fas fa-user-circle"></i> {{ current_user.nombre }} <small>({{ current_user.rol }})</small>
-                        </span>
+                    
+                    <!-- Saludo al usuario -->
+                    <li class="nav-item me-3 d-none d-lg-block">
+                        <span class="text-muted small">Hola, <strong>{{ current_user.nombre }}</strong></span>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" href="{{ url_for('auth.cerrar_sesion') }}">Salir</a>
+
+                    <!-- Botón de Área Privada según Rol -->
+                    <li class="nav-item me-2">
+                        {% if current_user.rol|lower in ['agente', 'admin'] %}
+                            <a class="btn btn-outline-primary rounded-pill px-4 fw-bold" href="{{ url_for('auth.panel') }}">
+                                <i class="bi bi-briefcase-fill me-1"></i> Área del Equipo
+                            </a>
+                        {% else %}
+                            <a class="btn btn-outline-success rounded-pill px-4 fw-bold" href="{{ url_for('citas.mis_visitas') }}">
+                                <i class="bi bi-person-circle me-1"></i> Área del Cliente
+                            </a>
+                        {% endif %}
                     </li>
+
+                    <!-- Botón de Salir -->
+                    <li class="nav-item">
+                        <a class="btn btn-light text-danger rounded-circle p-2" href="{{ url_for('auth.cerrar_sesion') }}" title="Cerrar Sesión">
+                            <i class="bi bi-box-arrow-right fs-5"></i>
+                        </a>
+                    </li>
+                
                 {% else %}
+                    <!-- Botones para Visitantes (No logueados) -->
+                    <li class="nav-item me-2">
+                        <a class="nav-link fw-bold text-secondary" href="{{ url_for('auth.iniciar_sesion') }}">Iniciar Sesión</a>
+                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.iniciar_sesion') }}">Ingresar</a>
+                        <a class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" href="{{ url_for('auth.registro') }}">Regístrate</a>
                     </li>
                 {% endif %}
             </ul>

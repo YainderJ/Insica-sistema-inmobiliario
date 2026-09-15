@@ -1,110 +1,111 @@
-{% extends "base/base.html" %}
+{% extends 'base/base.html' %}
 
-{% block title %}Mi Panel | INSICA{% endblock %}
+{% block title %}Panel Ejecutivo - INSICA{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Encabezado del Panel -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2><i class="fas fa-user-circle text-primary"></i> ¡Hola, {{ current_user.nombre }}!</h2>
-            <p class="text-muted">Bienvenido a tu espacio personal en INSICA.</p>
-        </div>
-        <div>
-            <span class="badge bg-primary fs-6"><i class="fas fa-id-badge"></i> Rol: {{ current_user.rol }}</span>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+    <div>
+        <h2 class="fw-bold text-primary mb-0">Resumen Operativo</h2>
+        <p class="text-muted mb-0">Bienvenido al centro de gestión, {{ current_user.nombre }}.</p>
     </div>
-    <hr>
+    <a href="{{ url_for('inmuebles.registrar_inmueble') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo Inmueble
+    </a>
+</div>
 
-    <!-- RENDERIZADO CONDICIONAL: VISTA DEL CLIENTE -->
-    {% if current_user.rol == 'Cliente' %}
-    <div class="row mt-4">
-        <!-- Módulo 1: Búsqueda -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100 border-0 border-bottom border-primary border-4">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-home fa-4x text-primary mb-3"></i>
-                    <h4 class="card-title fw-bold">Catálogo de Inmuebles</h4>
-                    <p class="text-muted mb-4">Explora las propiedades disponibles, filtra por presupuesto y encuentra tu espacio ideal.</p>
-                    <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-primary px-4 py-2">Explorar Catálogo</a>
+<!-- Tarjetas de Métricas (KPIs) -->
+<div class="row g-4 mb-5">
+    
+    <!-- KPI Ventas (D4) -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-success text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-white-50">VENTAS ACUMULADAS</h6>
+                    <i class="bi bi-currency-dollar fs-3 opacity-50"></i>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Módulo 3: Citas -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100 border-0 border-bottom border-success border-4">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-calendar-check fa-4x text-success mb-3"></i>
-                    <h4 class="card-title fw-bold">Mis Visitas</h4>
-                    <p class="text-muted mb-4">Consulta el estado de tus solicitudes de agendamiento y visitas confirmadas por los agentes.</p>
-                    <a href="{{ url_for('citas.mis_visitas') }}" class="btn btn-success px-4 py-2">Ver mis Citas</a>
-                </div>
+                <h3 class="fw-bold mb-0">${{ "{:,.2f}".format(total_ventas) }}</h3>
             </div>
         </div>
     </div>
 
-    <!-- RENDERIZADO CONDICIONAL: VISTA DEL AGENTE INMOBILIARIO -->
-    {% elif current_user.rol == 'Agente' or current_user.rol == 'Admin' %}
-    <div class="row mt-4">
-        <!-- Módulo 1: Captación de Inmuebles -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100 border-0 border-start border-primary border-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-building fa-2x text-primary me-3"></i>
-                        <h5 class="card-title mb-0 fw-bold">Gestión de Inmuebles</h5>
-                    </div>
-                    <p class="text-muted small">Registra nuevas propiedades en el sistema, edita fichas técnicas y actualiza estatus del catálogo.</p>
-                    <a href="{{ url_for('inmuebles.registrar_inmueble') }}" class="btn btn-outline-primary btn-sm w-100 mb-2">Captar Inmueble</a>
-                    <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-light btn-sm w-100">Ver Catálogo</a>
+    <!-- KPI Inmuebles (D1) -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-white-50">EN CATÁLOGO</h6>
+                    <i class="bi bi-building fs-3 opacity-50"></i>
                 </div>
-            </div>
-        </div>
-
-        <!-- Módulo 2: CRM y Gestión de Leads -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100 border-0 border-start border-warning border-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-users fa-2x text-warning me-3"></i>
-                        <h5 class="card-title mb-0 fw-bold">Leads y CRM</h5>
-                    </div>
-                    <p class="text-muted small">Revisa las consultas de clientes potenciales y gestiona las oportunidades de negocio.</p>
-                    <a href="{{ url_for('crm.panel_leads') }}" class="btn btn-outline-warning btn-sm w-100">Bandeja de Leads</a>
-                </div>
-            </div>
-        </div>
-
-<!-- Módulo de agendas -->
-
-         <div class="col-md-4 mb-3">
-        <div class="card shadow-sm border-0 h-100 text-center p-3">
-            <div class="card-body">
-                <i class="bi bi-calendar-week display-4 text-primary mb-3"></i>
-                <h5 class="card-title fw-bold">Agenda de Visitas</h5>
-                <p class="card-text text-muted small">Gestiona las solicitudes de citas de tus clientes.</p>
-                <a href="{{ url_for('citas.agenda') }}" class="btn btn-primary rounded-pill w-100">
-                    Ir a la Agenda
-                </a>
+                <h3 class="fw-bold mb-0">{{ inmuebles_disponibles }} Propiedades</h3>
             </div>
         </div>
     </div>
 
-        <!-- Módulo 4: Ventas y Comisiones -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100 border-0 border-start border-success border-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-handshake fa-2x text-success me-3"></i>
-                        <h5 class="card-title mb-0 fw-bold">Ventas y Comisiones</h5>
-                    </div>
-                    <p class="text-muted small">Visualiza tu volumen transaccionado, honorarios netos y formaliza cierres de propiedades.</p>
-                    <a href="{{ url_for('ventas.mis_ventas') }}" class="btn btn-outline-success btn-sm w-100">Reporte Financiero</a>
+    <!-- KPI Leads (D2) -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-warning text-dark">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-black-50">LEADS NUEVOS</h6>
+                    <i class="bi bi-people fs-3 opacity-50"></i>
                 </div>
+                <h3 class="fw-bold mb-0">{{ leads_activos }} Consultas</h3>
             </div>
         </div>
     </div>
-    {% endif %}
+
+    <!-- KPI Citas (D3) -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-info text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-white-50">CITAS PENDIENTES</h6>
+                    <i class="bi bi-calendar-event fs-3 opacity-50"></i>
+                </div>
+                <h3 class="fw-bold mb-0">{{ citas_pendientes }} Agendadas</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enlaces Rápidos a los Módulos -->
+<div class="row g-4">
+    <div class="col-12">
+        <h5 class="fw-bold text-dark mb-3">Accesos Directos</h5>
+    </div>
+    
+    <!-- Módulo 1: Inmuebles (Almacén D1) -->
+    <div class="col-md-3">
+        <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-outline-secondary w-100 rounded-4 py-3 fw-bold d-flex flex-column align-items-center justify-content-center">
+            <i class="bi bi-houses text-primary mb-1 fs-4"></i>
+            <span>Inventario</span>
+        </a>
+    </div>
+    
+    <!-- Módulo 2: CRM / Leads (Almacén D2) -->
+    <div class="col-md-3">
+        <a href="{{ url_for('crm.panel_leads') }}" class="btn btn-outline-secondary w-100 rounded-4 py-3 fw-bold d-flex flex-column align-items-center justify-content-center">
+            <i class="bi bi-envelope-paper text-warning mb-1 fs-4"></i>
+            <span>Consultas</span>
+        </a>
+    </div>
+    
+    <!-- Módulo 3: Citas (Almacén D3) -->
+    <div class="col-md-3">
+        <a href="{{ url_for('citas.agenda') }}" class="btn btn-outline-secondary w-100 rounded-4 py-3 fw-bold d-flex flex-column align-items-center justify-content-center">
+            <i class="bi bi-calendar-check text-info mb-1 fs-4"></i>
+            <span>Agenda</span>
+        </a>
+    </div>
+
+    <!-- Módulo 4: Ventas y Comisiones (Almacén D4) -->
+    <div class="col-md-3">
+        <!-- Nota: Verifica que el endpoint coincida con la ruta de tus reportes de ventas -->
+        <a href="{{ url_for('ventas.mis_ventas') }}" class="btn btn-outline-secondary w-100 rounded-4 py-3 fw-bold d-flex flex-column align-items-center justify-content-center">
+            <i class="bi bi-cash-coin text-success mb-1 fs-4"></i>
+            <span>Comisiones</span>
+        </a>
+    </div>
 </div>
 {% endblock %}

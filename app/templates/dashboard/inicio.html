@@ -1,85 +1,109 @@
-{% extends "base/base.html" %}
+{% extends 'base/base.html' %}
 
-{% block title %}Inicio | INSICA{% endblock %}
-
-{% block extra_css %}
-<style>
-    .hero-banner {
-        /* Nueva imagen orientada a bienes raíces */
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-        background-size: cover;
-        background-position: center;
-        border-radius: 20px;
-        padding: 100px 40px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        margin-top: 10px;
-    }
-
-    .hero-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .hero-subtitle {
-        font-size: 1.3rem;
-        max-width: 800px;
-        margin: 0 auto 40px auto;
-        line-height: 1.6;
-        color: #f8f9fa;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-    }
-</style>
-{% endblock %}
+{% block title %}Inicio - INSICA{% endblock %}
 
 {% block content %}
-<div class="hero-banner">
-    <h1 class="hero-title">Tu próximo hogar está aquí.</h1>
-    <p class="hero-subtitle">
-        En INSICA conectamos tus sueños con las mejores propiedades del mercado. <br>
-        <strong style="color: #6ee7b7;">Seguridad, rapidez y confianza.</strong>
-    </p>
-    
-    {% if not current_user.is_authenticated %}
-        <a href="{{ url_for('auth.iniciar_sesion') }}" class="btn btn-light btn-lg fw-bold px-5 rounded-pill shadow text-primary">
-            Ingresar al Sistema
-        </a>
-    {% else %}
-        <a href="{{ url_for('auth.panel') }}" class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow">
-            Ir a mi Panel
-        </a>
-    {% endif %}
+<!-- Banner de Bienvenida -->
+<div class="bg-primary text-white text-center py-4 mb-4 rounded-4 shadow-sm">
+    <h2 class="fw-bold mb-1">Encuentra tu propiedad ideal</h2>
+    <p class="mb-0">Los mejores inmuebles gestionados por profesionales de confianza.</p>
 </div>
 
-<div class="row mt-5 text-center g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm rounded-4">
+<div class="row g-4 mb-5">
+    <!-- COLUMNA IZQUIERDA: Motor de Búsqueda -->
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 20px;">
             <div class="card-body p-4">
-                <h1 class="display-4 text-primary mb-3"><i class="bi bi-houses"></i></h1>
-                <h4 class="fw-bold">Catálogo Actualizado</h4>
-                <p class="text-muted">Encuentra propiedades verificadas, con fichas técnicas detalladas y listas para visitar.</p>
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-search text-primary me-2"></i>Búsqueda</h5>
+                
+                <!-- El formulario enviará los filtros por método GET al Catálogo -->
+                <form action="{{ url_for('inmuebles.catalogo') }}" method="GET">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted fw-bold">Transacción</label>
+                        <select name="tipo_operacion" class="form-select rounded-pill bg-light border-0">
+                            <option value="">Cualquiera</option>
+                            <option value="Venta">Venta</option>
+                            <option value="Alquiler">Alquiler</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small text-muted fw-bold">Tipo de Inmueble</label>
+                        <select name="tipo_inmueble" class="form-select rounded-pill bg-light border-0">
+                            <option value="">Cualquier tipo</option>
+                            <option value="Casa">Casa</option>
+                            <option value="Apartamento">Apartamento</option>
+                            <option value="Local Comercial">Local Comercial</option>
+                            <option value="Terreno">Terreno</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">
+                        Aplicar Filtros
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm rounded-4">
-            <div class="card-body p-4">
-                <h1 class="display-4 text-success mb-3"><i class="bi bi-calendar-check"></i></h1>
-                <h4 class="fw-bold">Agenda de Visitas</h4>
-                <p class="text-muted">Solicita citas en línea y coordina tu visita directamente con el agente encargado.</p>
+
+    <!-- COLUMNA CENTRAL: Escaparate Inmobiliario (Solo Disponibles) -->
+    <div class="col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0 text-dark">Propiedades Destacadas</h4>
+            <a href="{{ url_for('inmuebles.catalogo') }}" class="text-decoration-none small fw-bold">Ver catálogo completo <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="row g-3">
+            {% for propiedad in propiedades %}
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm rounded-4 hover-card">
+                    {% if propiedad.fotografias and propiedad.fotografias != 'None' %}
+                        {% set primera_foto = propiedad.fotografias.split(',')[0] %}
+                        <img src="{{ url_for('static', filename='uploads/' + primera_foto.strip()) }}" class="card-img-top rounded-top-4" style="height: 180px; object-fit: cover;" alt="Inmueble">
+                    {% else %}
+                        <div class="bg-light d-flex justify-content-center align-items-center rounded-top-4" style="height: 180px;">
+                            <img src="{{ url_for('static', filename='favicon.png') }}" class="opacity-25" style="height: 60px;">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body p-3">
+                        <span class="badge bg-success mb-2">{{ propiedad.tipo_operacion }}</span>
+                        <h5 class="fw-bold text-dark mb-1">${{ "{:,.2f}".format(propiedad.precio) }}</h5>
+                        <p class="text-muted small mb-3 text-truncate"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ propiedad.direccion }}</p>
+                        
+                        <a href="{{ url_for('inmuebles.detalle_inmueble', id_inmueble=propiedad.id) }}" class="btn btn-outline-primary w-100 rounded-pill btn-sm fw-bold">
+                            Ver Detalles
+                        </a>
+                    </div>
+                </div>
             </div>
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-houses text-muted display-4 opacity-25"></i>
+                <p class="text-muted mt-2">No hay propiedades destacadas en este momento.</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm rounded-4">
-            <div class="card-body p-4">
-                <h1 class="display-4 text-warning mb-3"><i class="bi bi-headset"></i></h1>
-                <h4 class="fw-bold">Atención Directa</h4>
-                <p class="text-muted">Comunícate con nuestros asesores en tiempo real a través de nuestro CRM integrado.</p>
+
+    <!-- COLUMNA DERECHA: Directorio de Agentes -->
+    <div class="col-lg-3">
+        <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-people-fill text-primary me-2"></i>Asesores</h5>
+        <div class="d-flex flex-column gap-3">
+            {% for agente in agentes %}
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="mb-2">
+                    <i class="bi bi-person-circle text-secondary opacity-50" style="font-size: 3rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-0 text-dark">{{ agente.nombre }} {{ agente.apellido }}</h6>
+                <p class="small text-muted mb-2">Agente Inmobiliario</p>
+                <a href="https://wa.me/{{ agente.telefono }}" target="_blank" class="btn btn-success btn-sm rounded-pill w-100 fw-bold">
+                    <i class="bi bi-whatsapp me-1"></i> Contactar
+                </a>
             </div>
+            {% else %}
+            <div class="text-center py-4 bg-light rounded-4">
+                <p class="text-muted small mb-0">Directorio de agentes en actualización.</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

@@ -2,7 +2,12 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
+from sqlalchemy import func
 from app.models.usuario import Usuario
+from app.models.inmueble import Inmueble
+from app.models.cita import Cita
+from app.models.lead_crm import LeadCRM
+from app.models.venta import Venta
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -69,8 +74,32 @@ def iniciar_sesion():
 @auth_bp.route('/panel')
 @login_required
 def panel():
-    """Ruta del Dashboard principal post-login."""
-    return render_template('dashboard/panel.html', usuario=current_user)
+    """
+    Dashboard Ejecutivo.
+    Centraliza métricas de los 4 módulos operativos para el equipo comercial.
+    """
+    # Redirección de seguridad si un Cliente intenta acceder escribiendo la URL manual
+    if current_user.rol.lower() not in ['agente', 'admin']:
+        return redirect(url_for('citas.mis_visitas'))
+
+    # Extracción de Métricas (KPIs)
+    # 1. Total en Ventas (Suma de montos finales del Almacén D4)
+    total_ventas = db.session.query(func.sum(Venta.monto_final)).scalar() or 0.0
+    
+    # 2. Inmuebles Disponibles (Conteo del Almacén D1)
+    inmuebles_disponibles = Inmueble.query.filter_by(estatus='Disponible').count()
+    
+    # 3. Leads Nuevos / Activos (Conteo del Almacén D2)
+    leads_activos = LeadCRM.query.filter_by(estatus='Nuevo').count()
+    
+    # 4. Citas Pendientes (Conteo del Almacén D3)
+    citas_pendientes = Cita.query.filter_by(estatus='Pendiente').count()
+
+    return render_template('dashboard/panel.html', 
+                           total_ventas=total_ventas,
+                           inmuebles_disponibles=inmuebles_disponibles,
+                           leads_activos=leads_activos,
+                           citas_pendientes=citas_pendientes)
 
 
 @auth_bp.route("/perfil", methods=["GET", "POST"])
