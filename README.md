@@ -70,26 +70,26 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
     insica-sistema-inmobiliario/
     ├── app/
-    │   ├── common/               # Utilidades, excepciones y decoradores[cite: 13]
-    │   ├── models/               # Modelos de base de datos (inmueble, usuario, cita, lead, venta)[cite: 13]
-    │   ├── routes/               # Controladores (auth, inmuebles, crm, citas, ventas)[cite: 13]
-    │   ├── templates/            # Plantillas HTML (Jinja2) agrupadas por módulo[cite: 13]
-    │   ├── static/               # Archivos estáticos (CSS, JS, imágenes subidas)[cite: 13]
-    │   ├── factories/            # Fábrica de usuarios (Factory Method)[cite: 13]
-    │   └── __init__.py           # Inicialización de la aplicación Flask[cite: 13]
-    ├── tests/                    # Carpeta de pruebas funcionales y de integración[cite: 13]
-    ├── run.py                    # Punto de entrada para desarrollo local[cite: 13]
-    ├── setup_db.py               # Script de inicialización y Seeding de la base de datos[cite: 13]
-    ├── requirements.txt          # Dependencias Python[cite: 13]
-    ├── pytest.ini                # Configuración de pytest[cite: 13]
+    │   ├── common/               # Utilidades, excepciones y decoradores
+    │   ├── models/               # Modelos de base de datos (inmueble, usuario, cita, lead, venta)
+    │   ├── routes/               # Controladores (auth, inmuebles, crm, citas, ventas)
+    │   ├── templates/            # Plantillas HTML (Jinja2) agrupadas por módulo
+    │   ├── static/               # Archivos estáticos (CSS, JS, imágenes subidas)
+    │   ├── factories/            # Fábrica de usuarios (Factory Method)
+    │   └── __init__.py           # Inicialización de la aplicación Flask
+    ├── tests/                    # Futura carpeta de pruebas funcionales y de integración
+    ├── run.py                    # Punto de entrada para desarrollo local
+    ├── setup_db.py               # Script de inicialización y Seeding de la base de datos
+    ├── requirements.txt          # Dependencias Python
+    ├── pytest.ini                # Configuración de pytest
     ├── .env                      # Variables de entorno (no subir a git)
-    └── README.md                 # Este archivo[cite: 13]
+    └── README.md                 # Este archivo
 
 ## Roles de usuario
 
 - **Administrador**: Gerencia global. Acceso irrestricto a todos los reportes financieros, inventario histórico y agendas de la empresa, además de la gestión de agentes.
-- **Agente Inmobiliario**: Equipo comercial. Publica y gestiona sus propiedades captadas, atiende sus leads (clientes potenciales), administra su propia agenda de citas y procesa sus cierres de ventas[cite: 11].
-- **Cliente**: Usuario público registrado. Explora el catálogo de propiedades disponibles, solicita información detallada y agenda visitas[cite: 11].
+- **Agente Inmobiliario**: Equipo comercial. Publica y gestiona sus propiedades captadas, atiende sus leads (clientes potenciales), administra su propia agenda de citas y procesa sus cierres de ventas.
+- **Cliente**: Usuario público registrado. Explora el catálogo de propiedades disponibles, solicita información detallada y agenda visitas.
 
 ## Funcionalidades clave
 
@@ -116,8 +116,8 @@ Este proyecto ha sido desarrollado con fines académicos como Proyecto de Trabaj
 
 ## Autores
 
-- **Yainder Jesús Muñoz Piña** - [@yainderj](https://github.com/yainderj)[cite: 12]
+- **Yainder Jesús Muñoz Piña** - [@yainderj](https://github.com/yainderj)
 
 ## Agradecimientos
 
-- **Prof. Yaskelly Yedra**, por la tutoría y guía metodológica en el desarrollo del proyecto[cite: 12].
+- **Prof. Yaskelly Yedra**, por la tutoría y guía metodológica en el desarrollo del proyecto.
