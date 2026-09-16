@@ -29,6 +29,7 @@ La plataforma garantiza el Aislamiento de Datos (Data Isolation) categorizando a
 *   **Backend**: Python 3.9+, Flask, Flask-Login, Flask-SQLAlchemy.
 *   **Base de Datos**: Base de datos relacional (MySQL/SQLite).
 *   **Frontend**: HTML5, CSS3, Bootstrap 5, Jinja2.
+*   **Control de versiones**: Git, GitHub
 
 ## ⚙️ Instalación y Configuración Local
 
@@ -36,22 +37,32 @@ La plataforma garantiza el Aislamiento de Datos (Data Isolation) categorizando a
 Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
 1. **Clonar el repositorio**
+    ```bash
     git clone [https://github.com/tu-usuario/insica-sistema-inmobiliario.git](https://github.com/tu-usuario/insica-sistema-inmobiliario.git)
     cd insica-sistema-inmobiliario
+    ```
 
 2. **Crear y activar un entorno virtual**
+    ```bash
     python -m venv venv
     source venv/bin/activate  # En Windows: venv\Scripts\activate
+    ```
 
 3. **Instalar dependencias**
+    ```bash
     pip install -r requirements.txt
+    ```
 
 4. **Inicializar la Base de Datos (Seeding)**
-   El sistema incluye un script que purga esquemas antiguos y genera un usuario Administrador por defecto para pruebas.
+    > **Nota**: El sistema incluye un script que purga esquemas antiguos y genera un usuario Administrador por defecto para pruebas.
+    ```bash
     python setup_db.py
+    ```
 
 5. **Ejecutar la aplicación**
+    ```bash
     python run.py
+    ```
 
    *La plataforma estará disponible en `http://localhost:5000`.*
 
