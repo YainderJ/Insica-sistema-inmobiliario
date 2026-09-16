@@ -32,9 +32,32 @@ La plataforma garantiza el Aislamiento de Datos (Data Isolation) categorizando a
 
 ## ⚙️ Instalación y Configuración Local
 
+
 Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
 1. **Clonar el repositorio**
-   ```bash
-   git clone [https://github.com/tu-usuario/insica-sistema-inmobiliario.git](https://github.com/tu-usuario/insica-sistema-inmobiliario.git)
-   cd insica-sistema-inmobiliario
+    git clone [https://github.com/tu-usuario/insica-sistema-inmobiliario.git](https://github.com/tu-usuario/insica-sistema-inmobiliario.git)
+    cd insica-sistema-inmobiliario
+
+2. **Crear y activar un entorno virtual**
+    python -m venv venv
+    source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+3. **Instalar dependencias**
+    pip install -r requirements.txt
+
+4. **Inicializar la Base de Datos (Seeding)**
+   El sistema incluye un script que purga esquemas antiguos y genera un usuario Administrador por defecto para pruebas.
+    python setup_db.py
+
+5. **Ejecutar la aplicación**
+    python run.py
+
+   *La plataforma estará disponible en `http://localhost:5000`.*
+
+## 🎓 Créditos Académicos
+
+Este proyecto ha sido desarrollado como Trabajo de Investigación para optar al título de **Licenciatura en Computación** en la **Facultad Experimental de Ciencias** de **La Universidad del Zulia (LUZ)**[cite: 11].
+
+*   **Autor**: Yainder Jesús Muñoz Piña[cite: 11]
+*   **Tutora**: Prof. Yaskelly Yedra[cite: 11]
