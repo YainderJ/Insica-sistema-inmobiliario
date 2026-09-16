@@ -94,15 +94,15 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 ## Funcionalidades clave
 
 ### Para el Cliente
-- Explorar el catálogo dinámico de inmuebles disponibles con filtros de búsqueda por zona, precio o tipo[cite: 11].
-- Visualizar la ficha técnica detallada de cada propiedad[cite: 11].
-- Enviar consultas (Leads) directamente al agente encargado del inmueble[cite: 11].
-- Solicitar fechas y horas para agendar visitas a las propiedades de interés[cite: 11].
+- Explorar el catálogo dinámico de inmuebles disponibles con filtros de búsqueda por zona, precio o tipo.
+- Visualizar la ficha técnica detallada de cada propiedad.
+- Enviar consultas (Leads) directamente al agente encargado del inmueble.
+- Solicitar fechas y horas para agendar visitas a las propiedades de interés.
 
 ### Para el Agente Inmobiliario
-- Registrar y editar inmuebles (cargando fotos, precios y ubicación)[cite: 11].
-- Gestionar el panel CRM para responder a las consultas de los clientes (Leads)[cite: 11].
-- Administrar su agenda (confirmar, reprogramar o cancelar citas de visitas)[cite: 11].
+- Registrar y editar inmuebles (cargando fotos, precios y ubicación).
+- Gestionar el panel CRM para responder a las consultas de los clientes (Leads).
+- Administrar su agenda (confirmar, reprogramar o cancelar citas de visitas).
 - Formalizar el cierre de ventas y generar reportes automáticos de comisiones.
 
 ### Para el Administrador (Gerencia)
@@ -112,9 +112,9 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
 ## Licencia
 
-Este proyecto ha sido desarrollado con fines académicos como Proyecto de Trabajo de Investigación para optar al título de Licenciatura en Computación en la Facultad Experimental de Ciencias de La Universidad del Zulia (LUZ)[cite: 12]. Queda prohibido su uso comercial sin autorización expresa de los autores.
+Este proyecto es desarrollado con fines académicos para la asignatura Desarrollo de Sistemas de la Universidad del Zulia (LUZ). Queda prohibido su uso comercial sin autorización expresa de los autores.
 
-## Autores
+## Autor
 
 - **Yainder Jesús Muñoz Piña** - [@yainderj](https://github.com/yainderj)
 
