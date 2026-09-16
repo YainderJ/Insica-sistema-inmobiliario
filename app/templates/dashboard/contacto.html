@@ -9,7 +9,9 @@
     </div>
 
     <div class="row g-4 justify-content-center">
-        <!-- Tarjeta de Información -->
+        <!-- ========================================== -->
+        <!-- COLUMNA IZQUIERDA: INFORMACIÓN CORPORATIVA -->
+        <!-- ========================================== -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white p-5" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7);">
                 <h3 class="fw-bold mb-4">Información de Contacto</h3>
@@ -18,7 +20,7 @@
                     <i class="bi bi-geo-alt fs-3 me-3 opacity-75"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Sede Principal</h5>
-                        <p class="mb-0 text-white-50">Maracaibo, Estado Zulia<br>Venezuela</p>
+                        <p class="mb-0 text-white-50">Edificio Cora, Planta Baja, Calle 80, entre Av. 4 Bellavista y Av. 3Y San Martin, N° 3Y-71, Local N° 4.<br>Maracaibo, Edo. Zulia</p>
                     </div>
                 </div>
                 
@@ -26,7 +28,8 @@
                     <i class="bi bi-envelope-paper fs-3 me-3 opacity-75"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Correo Electrónico</h5>
-                        <p class="mb-0 text-white-50">contacto@insica.com</p>
+                        <p class="mb-0 text-white-50">Insica2009@hotmail.com</p>
+                        <p class="mb-0 text-white-50">Insica2009@gmail.com</p>
                     </div>
                 </div>
                 
@@ -34,25 +37,40 @@
                     <i class="bi bi-clock fs-3 me-3 opacity-75"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Horario de Atención</h5>
-                        <p class="mb-0 text-white-50">Lunes a Viernes: 8:00 AM - 5:00 PM<br>Sábados: Previa cita</p>
+                        <p class="mb-0 text-white-50">Lunes a Viernes de 9:00 AM a 3:30 PM</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Opciones Rápidas -->
+        <!-- ========================================== -->
+        <!-- COLUMNA DERECHA: CANALES DE ATENCIÓN (INTERACTIVOS) -->
+        <!-- ========================================== -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm rounded-4 h-100 p-4">
                 <h4 class="fw-bold text-dark mb-4">Canales de Atención</h4>
                 
-                <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-outline-primary btn-lg w-100 rounded-pill fw-bold mb-3 d-flex align-items-center justify-content-center">
-                    <i class="bi bi-search me-2"></i> Buscar Propiedades
+                <!-- Enlace dinámico para llamada telefónica clásica -->
+                <a href="tel:+582613233342" class="btn btn-outline-dark btn-lg w-100 rounded-pill fw-bold mb-3 d-flex align-items-center justify-content-center shadow-sm">
+                    <i class="bi bi-telephone-fill me-2 text-primary"></i> Llamar a Oficina: (0261) 3233342
                 </a>
                 
-                <div class="alert alert-light border shadow-sm rounded-4 text-center p-4 mt-3">
-                    <i class="bi bi-headset display-4 text-success mb-3"></i>
-                    <h6 class="fw-bold text-dark">¿Tienes un caso específico?</h6>
-                    <p class="small text-muted mb-0">Regístrate como Cliente y solicita asesoría directamente en el perfil de cualquiera de nuestros Agentes Inmobiliarios asociados.</p>
+                <!-- Enlace dinámico directo a la API de WhatsApp -->
+                <a href="https://wa.me/584146345864" target="_blank" class="btn btn-success btn-lg w-100 rounded-pill fw-bold mb-4 d-flex align-items-center justify-content-center shadow-sm">
+                    <i class="bi bi-whatsapp me-2"></i> Escribir al WhatsApp: (0414) 6345864
+                </a>
+                
+                <hr class="opacity-25 mb-4">
+
+                <!-- Redirección al Flujo Transaccional del CRM -->
+                <div class="alert alert-light border shadow-sm rounded-4 text-center p-4 mb-0">
+                    <i class="bi bi-headset display-4 text-primary mb-3"></i>
+                    <h6 class="fw-bold text-dark">¿Buscas atención personalizada?</h6>
+                    <p class="small text-muted mb-3">Regístrate como Cliente y solicita asesoría directamente desde nuestro catálogo con cualquiera de nuestros Agentes Inmobiliarios.</p>
+                    
+                    <a href="{{ url_for('inmuebles.catalogo') }}" class="btn btn-primary rounded-pill fw-bold px-4 w-100 shadow-sm">
+                        <i class="bi bi-search me-2"></i> Explorar Catálogo
+                    </a>
                 </div>
             </div>
         </div>
