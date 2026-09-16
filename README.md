@@ -66,9 +66,58 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
    *La plataforma estará disponible en `http://localhost:5000`.*
 
-## 🎓 Créditos Académicos
+## Estructura del proyecto
 
-Este proyecto ha sido desarrollado como Trabajo de Investigación para optar al título de **Licenciatura en Computación** en la **Facultad Experimental de Ciencias** de **La Universidad del Zulia (LUZ)**[cite: 11].
+    insica-sistema-inmobiliario/
+    ├── app/
+    │   ├── common/               # Utilidades, excepciones y decoradores[cite: 13]
+    │   ├── models/               # Modelos de base de datos (inmueble, usuario, cita, lead, venta)[cite: 13]
+    │   ├── routes/               # Controladores (auth, inmuebles, crm, citas, ventas)[cite: 13]
+    │   ├── templates/            # Plantillas HTML (Jinja2) agrupadas por módulo[cite: 13]
+    │   ├── static/               # Archivos estáticos (CSS, JS, imágenes subidas)[cite: 13]
+    │   ├── factories/            # Fábrica de usuarios (Factory Method)[cite: 13]
+    │   └── __init__.py           # Inicialización de la aplicación Flask[cite: 13]
+    ├── tests/                    # Carpeta de pruebas funcionales y de integración[cite: 13]
+    ├── run.py                    # Punto de entrada para desarrollo local[cite: 13]
+    ├── setup_db.py               # Script de inicialización y Seeding de la base de datos[cite: 13]
+    ├── requirements.txt          # Dependencias Python[cite: 13]
+    ├── pytest.ini                # Configuración de pytest[cite: 13]
+    ├── .env                      # Variables de entorno (no subir a git)
+    └── README.md                 # Este archivo[cite: 13]
 
-*   **Autor**: Yainder Jesús Muñoz Piña[cite: 11]
-*   **Tutora**: Prof. Yaskelly Yedra[cite: 11]
+## Roles de usuario
+
+- **Administrador**: Gerencia global. Acceso irrestricto a todos los reportes financieros, inventario histórico y agendas de la empresa, además de la gestión de agentes.
+- **Agente Inmobiliario**: Equipo comercial. Publica y gestiona sus propiedades captadas, atiende sus leads (clientes potenciales), administra su propia agenda de citas y procesa sus cierres de ventas[cite: 11].
+- **Cliente**: Usuario público registrado. Explora el catálogo de propiedades disponibles, solicita información detallada y agenda visitas[cite: 11].
+
+## Funcionalidades clave
+
+### Para el Cliente
+- Explorar el catálogo dinámico de inmuebles disponibles con filtros de búsqueda por zona, precio o tipo[cite: 11].
+- Visualizar la ficha técnica detallada de cada propiedad[cite: 11].
+- Enviar consultas (Leads) directamente al agente encargado del inmueble[cite: 11].
+- Solicitar fechas y horas para agendar visitas a las propiedades de interés[cite: 11].
+
+### Para el Agente Inmobiliario
+- Registrar y editar inmuebles (cargando fotos, precios y ubicación)[cite: 11].
+- Gestionar el panel CRM para responder a las consultas de los clientes (Leads)[cite: 11].
+- Administrar su agenda (confirmar, reprogramar o cancelar citas de visitas)[cite: 11].
+- Formalizar el cierre de ventas y generar reportes automáticos de comisiones.
+
+### Para el Administrador (Gerencia)
+- Supervisar el inventario histórico completo de la agencia (incluyendo propiedades vendidas).
+- Monitorear la bandeja global de Leads y la agenda corporativa de todos los agentes.
+- Analizar las métricas financieras globales (volumen transaccionado y comisiones acumuladas).
+
+## Licencia
+
+Este proyecto ha sido desarrollado con fines académicos como Proyecto de Trabajo de Investigación para optar al título de Licenciatura en Computación en la Facultad Experimental de Ciencias de La Universidad del Zulia (LUZ)[cite: 12]. Queda prohibido su uso comercial sin autorización expresa de los autores.
+
+## Autores
+
+- **Yainder Jesús Muñoz Piña** - [@yainderj](https://github.com/yainderj)[cite: 12]
+
+## Agradecimientos
+
+- **Prof. Yaskelly Yedra**, por la tutoría y guía metodológica en el desarrollo del proyecto[cite: 12].
