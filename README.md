@@ -38,7 +38,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
 1. **Clonar el repositorio**
     ```bash
-    git clone [https://github.com/tu-usuario/insica-sistema-inmobiliario.git](https://github.com/tu-usuario/insica-sistema-inmobiliario.git)
+    git clone (https://github.com/YainderJ/Insica-sistema-inmobiliario.git)
     cd insica-sistema-inmobiliario
     ```
 
@@ -77,10 +77,11 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
     │   ├── static/               # Archivos estáticos (CSS, JS, imágenes subidas)
     │   ├── factories/            # Fábrica de usuarios (Factory Method)
     │   └── __init__.py           # Inicialización de la aplicación Flask
-    ├── tests/                    # Futura carpeta de pruebas funcionales y de integración
+    ├── tests/                    # carpeta de pruebas funcionales y de integración
     ├── run.py                    # Punto de entrada para desarrollo local
     ├── setup_db.py               # Script de inicialización y Seeding de la base de datos
     ├── requirements.txt          # Dependencias Python
+    ├── .env.example              # Ejemplo de variables de entorno
     ├── pytest.ini                # Configuración de pytest
     ├── .env                      # Variables de entorno (no subir a git)
     └── README.md                 # Este archivo
