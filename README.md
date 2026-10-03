@@ -66,6 +66,29 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno de desarrollo:
 
    *La plataforma estará disponible en `http://localhost:5000`.*
 
+**Ruta exacta:** `.env.example` (Crea este nuevo archivo en la raíz de tu proyecto)
+
+```env
+# =========================================================================
+# CONFIGURACIÓN DEL SISTEMA INSICA (Plantilla de Variables de Entorno)
+# Instrucciones: Duplique este archivo, renómbrelo a '.env' y asigne
+# los valores reales para su entorno de desarrollo o producción.
+# =========================================================================
+
+- Configuración del Servidor Flask
+FLASK_APP=run.py
+FLASK_ENV=development
+
+- Seguridad y Criptografía (Requerido por Flask-Login y sesiones)
+- Genere una cadena aleatoria y segura para entornos de producción
+SECRET_KEY=ingrese_aqui_una_clave_secreta_muy_larga_y_segura
+
+- Configuración de Base de Datos (SQLAlchemy)
+- Para entorno local (SQLite): sqlite:///insica_local.db
+- Para producción (MySQL): mysql+pymysql://usuario:password@localhost/nombre_bd
+SQLALCHEMY_DATABASE_URI=sqlite:///insica_local.db
+SQLALCHEMY_TRACK_MODIFICATIONS=False
+
 ## Estructura del proyecto
 
     insica-sistema-inmobiliario/
