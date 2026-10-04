@@ -1,3 +1,4 @@
+import os
 from app import create_app, db
 
 # ==========================================
@@ -26,26 +27,40 @@ def inicializar_base_datos():
         # ==========================================
         # SEMBRADO DEL ADMINISTRADOR MAESTRO (Database Seeding)
         # ==========================================
-        admin_existente = Usuario.query.filter_by(email='admin@insica.com').first()
+        
+        # 1. Leer credenciales dinámicas desde las variables de entorno
+        admin_email = os.environ.get('ADMIN_EMAIL')
+        admin_password = os.environ.get('ADMIN_PASSWORD')
+        
+        # 2. Validación estricta de seguridad
+        if not admin_email or not admin_password:
+            print("ERROR FATAL: Faltan credenciales administrativas en el entorno.")
+            print("Asegúrate de definir ADMIN_EMAIL y ADMIN_PASSWORD en tu archivo .env")
+            exit(1)
+
+        # 3. Verificamos si el usuario ya existe usando el correo dinámico
+        admin_existente = Usuario.query.filter_by(email=admin_email).first()
         
         if not admin_existente:
-            print("Creando usuario Administrador de INSICA...")
+            print(f"Creando usuario Administrador ({admin_email})...")
+            
             admin = Usuario(
                 nombre='Administrador INSICA',
-                email='admin@insica.com',
+                email=admin_email,
                 rol='Admin',
                 telefono='+580000000000'
             )
-            # Contraseña por defecto para el superusuario
-            admin.set_password('AdminInsica2026*')
+            
+            # Asignar la contraseña de forma segura
+            admin.set_password(admin_password)
             
             db.session.add(admin)
             db.session.commit()
             print("Administrador creado exitosamente.")
-            print("-> Correo: admin@insica.com")
-            print("-> Clave: AdminInsica2026*")
+            print(f"-> Correo: {admin_email}")
+            print("-> Clave: [Protegida por variables de entorno]")
         else:
-            print("El Administrador principal ya existe en el sistema.")
+            print(f"El Administrador principal ({admin_email}) ya existe en el sistema.")
 
 if __name__ == '__main__':
     inicializar_base_datos()
